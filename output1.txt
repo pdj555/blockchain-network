@@ -1,0 +1,70 @@
+Number of nodes: 4
+Number of transactions per block: 10
+Total number of transactions: 27
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #1 in node 0
+Inserting transaction to block #2 in node 0
+Inserting transaction to block #2 in node 0
+Inserting transaction to block #1 in node 1
+Inserting transaction to block #1 in node 1
+Inserting transaction to block #1 in node 1
+Inserting transaction to block #1 in node 2
+Inserting transaction to block #1 in node 2
+Inserting transaction to block #1 in node 2
+Inserting transaction to block #1 in node 2
+Inserting transaction to block #1 in node 3
+Inserting transaction to block #1 in node 3
+Inserting transaction to block #1 in node 3
+Inserting transaction to block #1 in node 3
+Inserting transaction to block #1 in node 3
+Inserting transaction to block #1 in node 3
+Inserting transaction to block #1 in node 3
+Inserting transaction to block #1 in node 3
+~~~ Node 0: 
+Current number of blocks: 2
+Block Number: 1 -- Number of Transaction: 10
+10001 111 100 222 100 50 0042:01012021
+10002 115 100 111 50 80 0142:01012021
+10003 114 100 111 130 20 0245:01022021
+10004 222 150 111 150 10 0143:01022021
+10005 222 140 113 100 10 0144:01022021
+10006 212 100 115 20 70 0244:01022021
+10007 111 160 222 130 40 0245:01022021
+10008 114 80 115 90 70 0334:01022021
+10009 212 30 114 10 20 0445:01032021
+10010 212 10 115 160 10 0555:01032021
+Block Number: 2 -- Number of Transaction: 2
+10011 111 120 222 170 50 0142:01032021
+10012 113 110 111 70 80 0242:01042021
+~~~ Node 1: 
+Current number of blocks: 1
+Block Number: 1 -- Number of Transaction: 3
+10013 321 100 333 100 20 0345:01042021
+10014 555 100 321 80 10 1143:01042021
+10015 789 100 555 90 10 2144:01042021
+~~~ Node 2: 
+Current number of blocks: 1
+Block Number: 1 -- Number of Transaction: 4
+10016 999 100 987 100 80 0242:01042022
+10017 987 180 654 100 20 0345:01042022
+10018 552 100 654 120 10 1143:01042022
+10019 666 100 552 90 10 2144:01042022
+~~~ Node 3: 
+Current number of blocks: 1
+Block Number: 1 -- Number of Transaction: 8
+10020 999 100 987 100 80 0242:01042023
+10021 987 180 654 100 20 0345:01042023
+10022 553 100 654 120 10 1143:01042023
+10023 666 100 553 90 10 2144:01042023
+10024 999 20 987 160 80 0242:01042023
+10025 987 240 654 130 20 0345:01042023
+10026 553 100 654 150 10 1143:01042023
+10027 666 90 553 90 10 2144:01042023
