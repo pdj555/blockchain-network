@@ -1,4 +1,4 @@
-# BlockChain Network
+# BlockChain Network: Creating a Decentralized Network of BlockChains
 
 ## Objective
 The goal of this project is to create a network of BlockChains using the given class structures. This is an extension of Project 3.
