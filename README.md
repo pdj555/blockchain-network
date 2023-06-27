@@ -32,11 +32,13 @@ The input file is structured as follows:
 
 ### macOS/Linux/PowerShell
 If you have g++ installed, compile and run the program using the terminal:
-      g++ project4.cpp -o p4
-      ./p4 < input1.txt
+
+        g++ project4.cpp -o p4
+        ./p4 < input1.txt
 
 For powershell:
-      Get-Content input1.txt | ./p4
+
+        Get-Content input1.txt | ./p4
 
 ## Constraints
 1. Use only the provided header files.
