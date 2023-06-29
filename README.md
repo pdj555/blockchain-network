@@ -39,10 +39,3 @@ If you have g++ installed, compile and run the program using the terminal:
 For powershell:
 
         Get-Content input1.txt | ./p4
-
-## Constraints
-1. Use only the provided header files.
-2. This project is not a group project. Consultation and plagiarism are strictly prohibited.
-
-Please review the academic integrity policies in the course modules.
-
