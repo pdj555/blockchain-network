@@ -1,7 +1,7 @@
 # Blockchain Network: Creating a Decentralized Network of Blockchains
 
 ## Objective
-The goal of this project is to create a network of BlockChains using the given class structures. This is an extension of Project 3.
+The goal of this project is to create a network of BlockChains using the given class structures. This is an extension of https://github.com/pdj555/Simple-Blockchain-Implementation.
 
 ## Description
 In this project, we have an additional class called `blockNetwork` that includes four fields: `numNodes`, `allNodes`, `u`, and `v`. The input file provides a list of `u-v` values representing the connections between nodes.
