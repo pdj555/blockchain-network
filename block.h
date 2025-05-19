@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
 #include "transaction.h"
 using namespace std;
 
@@ -14,10 +15,18 @@ class block
     int newFromValue;
     int newToValue;
     int numNodesInNetwork;
+    std::string hash;
+    std::string prevHash;
 public:
     block();
     block(int bNumber, int maxTransactions);
     void inseartTran(transaction t);
+
+    void computeHash();
+    std::string getHash() const;
+    void setPrevHash(const std::string &pHash);
+    std::string getPrevHash() const;
+    std::string calculateHash() const;
 
     void setBlockNumber(int bN);
     void setCurrNumTran(int cnt);
