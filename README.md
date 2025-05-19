@@ -33,7 +33,7 @@ The input file is structured as follows:
 ### macOS/Linux/PowerShell
 If you have g++ installed, compile and run the program using the terminal:
 
-        g++ project4.cpp -o p4
+        g++ main.cpp blockNetwork.cpp blockChain.cpp block.cpp transaction.cpp -o p4
         ./p4 < input1.txt
 
 For powershell:
