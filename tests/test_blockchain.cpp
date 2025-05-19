@@ -21,3 +21,12 @@ TEST(BlockChainTest, InsertBlocks) {
     EXPECT_EQ(chain.getFront().getCurrNumTran(), 1);
 }
 
+TEST(BlockChainTest, VerifyChainIntegrity) {
+    blockChain chain(2);
+    transaction t1(0, 1, 1, 2, 10, "t1");
+    transaction t2(0, 2, 2, 3, 20, "t2");
+    chain.insertTran(t1);
+    chain.insertTran(t2);
+    EXPECT_TRUE(chain.verifyChain());
+}
+

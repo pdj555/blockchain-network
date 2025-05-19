@@ -15,6 +15,8 @@ public:
     void insertTran(const transaction &t);
     void insertBlockFront(block b);
 
+    bool verifyChain() const;
+
     void setCurrNumBlocks(int cnb);
     void setNodeNum(int node);
 
