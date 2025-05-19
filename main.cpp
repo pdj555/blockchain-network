@@ -18,14 +18,14 @@ int main()
     cin >> totalNumTransactions;
     cout << "Total number of transactions: " << totalNumTransactions << endl;
 
-    blockNetwork *n1 = new blockNetwork(numNodesInNetwork, numTransactionsPerBlock);
+    blockNetwork n1(numNodesInNetwork, numTransactionsPerBlock);
 
     int uNode;
     int vNode;
     cin >> numEdges;
     for (int i = 0; i < numEdges; i++) {
         cin >> uNode >> vNode;
-        n1->addEdge(uNode, vNode);
+        n1.addEdge(uNode, vNode);
     }
 
     int node;
@@ -36,11 +36,11 @@ int main()
     string timeStamp;
 
     while (cin >> node >> transactionID >> fromID >> toID >> amountTrans >> timeStamp) {
-        transaction* t = new transaction(node, transactionID, fromID, toID, amountTrans, timeStamp);
-        n1->insertTranToNode(node, t);
+        transaction t(node, transactionID, fromID, toID, amountTrans, timeStamp);
+        n1.insertTranToNode(node, t);
     }
 
-    n1->display();
+    n1.display();
     return 0;
 }
 

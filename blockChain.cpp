@@ -9,15 +9,18 @@ blockChain::blockChain(int tPerB) {
     currentNumBlocks = 1;
 }
 
-void blockChain::insertTran(transaction* t) {
-    if (bChain.empty() || bChain.front().getCurrNumTran() == bChain.front().getMaxNumTran()) {
+void blockChain::insertTran(const transaction &t) {
+    if (bChain.empty() ||
+        bChain.front().getCurrNumTran() == bChain.front().getMaxNumTran()) {
         block nB(currentNumBlocks, bChain.front().getMaxNumTran());
-        nB.inseartTran(*t);
+        nB.inseartTran(t);
         insertBlockFront(nB);
-        cout << "Inserting transaction to block #" << currentNumBlocks << " in node " << t->getTNodeNum() << endl;
+        cout << "Inserting transaction to block #" << currentNumBlocks
+             << " in node " << t.getTNodeNum() << endl;
     } else {
-        bChain.front().inseartTran(*t);
-        cout << "Inserting transaction to block #" << currentNumBlocks << " in node " << t->getTNodeNum() << endl;
+        bChain.front().inseartTran(t);
+        cout << "Inserting transaction to block #" << currentNumBlocks
+             << " in node " << t.getTNodeNum() << endl;
     }
 }
 
