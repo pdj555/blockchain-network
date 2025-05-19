@@ -12,7 +12,7 @@ class blockChain
 public:
     blockChain();
     blockChain(int tPerB);
-    void insertTran(transaction* t);
+    void insertTran(const transaction &t);
     void insertBlockFront(block b);
 
     void setCurrNumBlocks(int cnb);

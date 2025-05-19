@@ -17,7 +17,7 @@ public:
     blockNetwork();
     blockNetwork(int numberOfNodes, int maxTranPerBlock);
 
-    void insertTranToNode(int node, transaction* tran);
+    void insertTranToNode(int node, const transaction &tran);
 
     void setNumNodes(int nN);
     void setNumIDs(int nI);

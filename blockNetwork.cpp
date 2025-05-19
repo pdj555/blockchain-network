@@ -14,7 +14,7 @@ blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock) {
     }
 }
 
-void blockNetwork::insertTranToNode(int node, transaction* tran) {
+void blockNetwork::insertTranToNode(int node, const transaction &tran) {
     if (node >= 0 && node < numNodes) {
         allNodes[node].insertTran(tran);
     }

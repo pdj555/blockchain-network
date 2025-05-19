@@ -26,14 +26,14 @@ public:
     void setToValue(int tV);
     void setTNodeNum(int node);
 
-    int getTranID();
-    int getFromID();
-    int getToID();
-    int getTranAmount();
-    string getTimeStamp();
-    int getFromValue();
-    int getToValue();
-    int getTNodeNum();
+    int getTranID() const;
+    int getFromID() const;
+    int getToID() const;
+    int getTranAmount() const;
+    string getTimeStamp() const;
+    int getFromValue() const;
+    int getToValue() const;
+    int getTNodeNum() const;
 
     void displayTransaction(int newFromValue, int newToValue);
 };

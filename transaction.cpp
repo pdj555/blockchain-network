@@ -46,35 +46,35 @@ void transaction::setToValue(int tV) {
     toValue = tV;
 }
 
-int transaction::getTranID() {
+int transaction::getTranID() const {
     return tID;
 }
 
-int transaction::getFromID() {
+int transaction::getFromID() const {
     return fromID;
 }
 
-int transaction::getToID() {
+int transaction::getToID() const {
     return toID;
 }
 
-int transaction::getTranAmount() {
+int transaction::getTranAmount() const {
     return tAmount;
 }
 
-string transaction::getTimeStamp() {
+string transaction::getTimeStamp() const {
     return timeStamp;
 }
 
-int transaction::getTNodeNum() {
+int transaction::getTNodeNum() const {
     return nodeNum;
 }
 
-int transaction::getFromValue() {
+int transaction::getFromValue() const {
     return fromValue;
 }
 
-int transaction::getToValue() {
+int transaction::getToValue() const {
     return toValue;
 }
 
