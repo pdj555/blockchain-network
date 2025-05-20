@@ -26,3 +26,13 @@ TEST(BlockNetworkTest, VerifyAllChains) {
     EXPECT_TRUE(net.verifyAllChains());
 }
 
+TEST(BlockNetworkTest, DetectTampering) {
+    blockNetwork net(1, 2);
+    transaction t1(0, 1, 1, 2, 5, "ts");
+    transaction t2(0, 2, 2, 3, 7, "ts2");
+    net.insertTranToNode(0, t1);
+    net.insertTranToNode(0, t2);
+    net.tamperPrevHash(0, 0, "bad");
+    EXPECT_TRUE(!net.verifyAllChains());
+}
+
