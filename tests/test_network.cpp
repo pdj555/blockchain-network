@@ -16,3 +16,10 @@ TEST(BlockNetworkTest, DisplayOutput) {
     EXPECT_NE(output.find("Block Number"), std::string::npos);
 }
 
+TEST(BlockNetworkTest, VerifyAllChains) {
+    blockNetwork net(1, 2);
+    transaction t(0, 1, 1, 2, 5, "ts");
+    net.insertTranToNode(0, t);
+    EXPECT_TRUE(net.verifyAllChains());
+}
+
