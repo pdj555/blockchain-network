@@ -34,4 +34,6 @@ public:
     void clearID();
 
     void display();
+
+    bool verifyAllChains() const;
 };
