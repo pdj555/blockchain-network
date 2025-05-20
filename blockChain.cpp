@@ -7,18 +7,23 @@ blockChain::blockChain() {
 blockChain::blockChain(int tPerB) {
     bChain.push_front(block(currentNumBlocks, tPerB));
     currentNumBlocks = 1;
+    bChain.front().setPrevHash("0");
+    bChain.front().computeHash();
 }
 
 void blockChain::insertTran(const transaction &t) {
     if (bChain.empty() ||
         bChain.front().getCurrNumTran() == bChain.front().getMaxNumTran()) {
         block nB(currentNumBlocks, bChain.front().getMaxNumTran());
+        nB.setPrevHash(bChain.front().getHash());
         nB.inseartTran(t);
+        nB.computeHash();
         insertBlockFront(nB);
         cout << "Inserting transaction to block #" << currentNumBlocks
              << " in node " << t.getTNodeNum() << endl;
     } else {
         bChain.front().inseartTran(t);
+        bChain.front().computeHash();
         cout << "Inserting transaction to block #" << currentNumBlocks
              << " in node " << t.getTNodeNum() << endl;
     }
@@ -28,6 +33,20 @@ void blockChain::insertBlockFront(block b) {
     b.setNextBlock(&bChain.front());
     bChain.push_front(b);
     currentNumBlocks++;
+}
+
+bool blockChain::verifyChain() const {
+    std::string prev = "0";
+    for (auto it = bChain.crbegin(); it != bChain.crend(); ++it) {
+        if (it->calculateHash() != it->getHash()) {
+            return false;
+        }
+        if (it->getPrevHash() != prev) {
+            return false;
+        }
+        prev = it->getHash();
+    }
+    return true;
 }
 
 void blockChain::setCurrNumBlocks(int cnb) {

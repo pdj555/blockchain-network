@@ -97,4 +97,13 @@ void blockNetwork::display() {
     }
 }
 
+bool blockNetwork::verifyAllChains() const {
+    for (const auto &chain : allNodes) {
+        if (!chain.verifyChain()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 
