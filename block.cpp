@@ -12,6 +12,34 @@ block::block(int bNumber, int maxTransactions) {
     currentNumTransactions = 0;
 }
 
+void block::computeHash() {
+    hash = calculateHash();
+}
+
+std::string block::calculateHash() const {
+    std::string data = prevHash + std::to_string(blockNumber);
+    for (const auto &t : bTransactions) {
+        data += std::to_string(t.getTranID());
+        data += std::to_string(t.getFromID());
+        data += std::to_string(t.getToID());
+        data += std::to_string(t.getTranAmount());
+        data += t.getTimeStamp();
+    }
+    return std::to_string(std::hash<std::string>{}(data));
+}
+
+std::string block::getHash() const {
+    return hash;
+}
+
+void block::setPrevHash(const std::string &pHash) {
+    prevHash = pHash;
+}
+
+std::string block::getPrevHash() const {
+    return prevHash;
+}
+
 void block::inseartTran(transaction t) {
     bTransactions.push_back(t);
     currentNumTransactions++;

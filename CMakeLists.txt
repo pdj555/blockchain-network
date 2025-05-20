@@ -18,21 +18,17 @@ add_executable(p4 main.cpp)
 target_link_libraries(p4 PRIVATE blockchain)
 
 # ---- Tests ----
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
-)
-# For Windows: prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
 enable_testing()
+
+add_library(gtest INTERFACE)
+target_include_directories(gtest INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/gtest)
+
 add_executable(tests
+    gtest_main.cpp
     tests/test_transaction.cpp
     tests/test_blockchain.cpp
     tests/test_network.cpp
 )
-target_link_libraries(tests PRIVATE blockchain gtest_main)
+target_link_libraries(tests PRIVATE blockchain gtest)
 add_test(NAME all_tests COMMAND tests)
 
