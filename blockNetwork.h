@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include "blockChain.h"
 using namespace std;
 
@@ -8,10 +9,8 @@ class blockNetwork
 {
     int numNodes;
     vector<blockChain> allNodes;
-    vector<int> u;
-    vector<int> v;
-    vector<int> idValue;
-    vector<int> idNumber;
+    vector<vector<int>> adjList;
+    unordered_map<int, int> idMap;
     int numIDs;
 public:
     blockNetwork();
@@ -26,8 +25,8 @@ public:
     int getNumIDs();
 
     void addEdge(int uNode, int vNode);
-    int getValueOfID(int index);
-    void setValueOfID(int index, int value);
+    int getValueOfID(int id);
+    void setValueOfID(int id, int value);
 
     int searchID(int id);
     void addID(int id, int value);

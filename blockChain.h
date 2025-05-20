@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <list>
+#include <unordered_map>
 #include "block.h"
 using namespace std;
 
@@ -28,6 +29,6 @@ public:
     block getFront();
     int getNodeNum();
 
-    void displayTrans(int bNum, vector<int> &idNum, vector<int> &idVal);
+    void displayTrans(int bNum, std::unordered_map<int, int> &balances);
     int searchID(int ID);
 };
