@@ -106,4 +106,10 @@ bool blockNetwork::verifyAllChains() const {
     return true;
 }
 
+void blockNetwork::tamperPrevHash(size_t nodeIndex, size_t blockIndex, const std::string &newPrev) {
+    if (nodeIndex < allNodes.size()) {
+        allNodes[nodeIndex].tamperPrevHash(blockIndex, newPrev);
+    }
+}
+
 

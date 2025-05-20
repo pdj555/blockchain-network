@@ -49,6 +49,18 @@ bool blockChain::verifyChain() const {
     return true;
 }
 
+void blockChain::tamperPrevHash(size_t index, const std::string &newPrev) {
+    auto it = bChain.begin();
+    size_t i = 0;
+    while (i < index && it != bChain.end()) {
+        ++it;
+        ++i;
+    }
+    if (it != bChain.end()) {
+        it->setPrevHash(newPrev);
+    }
+}
+
 void blockChain::setCurrNumBlocks(int cnb) {
     currentNumBlocks = cnb;
 }

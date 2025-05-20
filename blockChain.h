@@ -17,6 +17,9 @@ public:
 
     bool verifyChain() const;
 
+    // Intentionally modify the prevHash of a block for testing
+    void tamperPrevHash(size_t index, const std::string &newPrev);
+
     void setCurrNumBlocks(int cnb);
     void setNodeNum(int node);
 

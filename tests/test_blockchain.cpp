@@ -30,3 +30,13 @@ TEST(BlockChainTest, VerifyChainIntegrity) {
     EXPECT_TRUE(chain.verifyChain());
 }
 
+TEST(BlockChainTest, DetectTampering) {
+    blockChain chain(2);
+    transaction t1(0, 1, 1, 2, 10, "t1");
+    transaction t2(0, 2, 2, 3, 20, "t2");
+    chain.insertTran(t1);
+    chain.insertTran(t2);
+    chain.tamperPrevHash(0, "badhash");
+    EXPECT_TRUE(!chain.verifyChain());
+}
+

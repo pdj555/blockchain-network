@@ -36,4 +36,7 @@ public:
     void display();
 
     bool verifyAllChains() const;
+
+    // Modify prevHash of a block in a given node for testing
+    void tamperPrevHash(size_t nodeIndex, size_t blockIndex, const std::string &newPrev);
 };
