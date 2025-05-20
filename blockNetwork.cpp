@@ -6,6 +6,7 @@ blockNetwork::blockNetwork() {
 
 blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock) {
     numNodes = 0;
+    adjList.resize(numberOfNodes);
     for (int i = 0; i < numberOfNodes; i++) {
         blockChain newChain(maxTranPerBlock);
         numNodes++;
@@ -37,35 +38,37 @@ int blockNetwork::getNumIDs() {
 }
 
 void blockNetwork::addEdge(int uNode, int vNode) {
-    u.push_back(uNode);
-    v.push_back(vNode);
+    if (uNode >= 0 && uNode < adjList.size() && vNode >= 0 && vNode < adjList.size()) {
+        adjList[uNode].push_back(vNode);
+    }
 }
 
-int blockNetwork::getValueOfID(int index) {
-    return idValue[index];
+int blockNetwork::getValueOfID(int id) {
+    auto it = idMap.find(id);
+    if (it != idMap.end()) {
+        return it->second;
+    }
+    return -1;
 }
 
-void blockNetwork::setValueOfID(int index, int value) {
-    idValue[index] = value;
+void blockNetwork::setValueOfID(int id, int value) {
+    idMap[id] = value;
 }
 
 int blockNetwork::searchID(int id) {
-    for (int i = 0; i < idNumber.size(); i++) {
-        if (idNumber[i] == id) {
-            return i;
-        }
+    auto it = idMap.find(id);
+    if (it != idMap.end()) {
+        return it->second;
     }
     return -1;
 }
 
 void blockNetwork::addID(int id, int value) {
-    idNumber.push_back(id);
-    idValue.push_back(value);
+    idMap[id] = value;
 }
 
 void blockNetwork::clearID() {
-    idNumber.clear();
-    idValue.clear();
+    idMap.clear();
 }
 
 void blockNetwork::display() {
@@ -90,10 +93,9 @@ void blockNetwork::display() {
             }
             cout << "Block Number: " << blockNum << " -- Number of Transactions:";
             cout << numTransInBlock << endl;
-            allNodes[i].displayTrans(blockNum, idNumber, idValue);
+            allNodes[i].displayTrans(blockNum, idMap);
         }
-        idValue.clear();
-        idNumber.clear();
+        idMap.clear();
     }
 }
 

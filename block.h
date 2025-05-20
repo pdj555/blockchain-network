@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "transaction.h"
 using namespace std;
 
@@ -41,6 +42,6 @@ public:
     int getNumNodesInNetwork();
 
     transaction getTran(int index);
-    void displayTransctions(vector<int> &idN, vector<int> &idV);
+    void displayTransctions(std::unordered_map<int, int> &balances);
     bool searchTrans(int id);
 };

@@ -89,56 +89,21 @@ transaction block::getTran(int index) {
     return bTransactions[index];
 }
 
-void block::displayTransctions(vector<int> &idN, vector<int> &idV) {
-    int newFromVal;
-    int newToVal;
-    for (int i = 0; i < bTransactions.size(); i++) {
-        int fIdx = -1;
-        int tIdx = -1;
-        for (int j = 0; j < idN.size(); j++) {
-            if (idN[j] == bTransactions[i].getFromID()) {
-                fIdx = j;
-            }
-            if (idN[j] == bTransactions[i].getToID()) {
-                tIdx = j;
-            }
-        }
-        if (fIdx != -1 && tIdx != -1) {
-            newFromVal = idV[fIdx]-bTransactions[i].getTranAmount();
-            newToVal = idV[tIdx]+bTransactions[i].getTranAmount();
-            idN[fIdx] = bTransactions[i].getFromID();
-            idV[fIdx] = newFromVal;
-            idN[tIdx] = bTransactions[i].getToID();
-            idV[tIdx] = newToVal;
-            bTransactions[i].displayTransaction(newFromVal, newToVal);
-        }
-        else if (fIdx != -1 && tIdx == -1) {
-            newFromVal = idV[fIdx]-bTransactions[i].getTranAmount();
-            newToVal = 100+bTransactions[i].getTranAmount();
-            idN[fIdx] = bTransactions[i].getFromID();
-            idV[fIdx] = newFromVal;
-            idN.push_back(bTransactions[i].getToID());
-            idV.push_back(newToVal);
-            bTransactions[i].displayTransaction(newFromVal, newToVal);
-        }
-        else if (fIdx == -1 && tIdx != -1) {
-            newFromVal = 100-bTransactions[i].getTranAmount();
-            newToVal = idV[tIdx]+bTransactions[i].getTranAmount();
-            idN.push_back(bTransactions[i].getFromID());
-            idV.push_back(newFromVal);
-            idN[tIdx] = bTransactions[i].getToID();
-            idV[tIdx] = newToVal;
-            bTransactions[i].displayTransaction(newFromVal, newToVal);
-        }
-        else {
-            newFromVal = 100-bTransactions[i].getTranAmount();
-            newToVal = 100+bTransactions[i].getTranAmount();
-            idN.push_back(bTransactions[i].getFromID());
-            idV.push_back(newFromVal);
-            idN.push_back(bTransactions[i].getToID());
-            idV.push_back(newToVal);
-            bTransactions[i].displayTransaction(newFromVal, newToVal);
-        }
+void block::displayTransctions(std::unordered_map<int, int> &balances) {
+    for (auto &tran : bTransactions) {
+        int fromID = tran.getFromID();
+        int toID = tran.getToID();
+
+        int fromVal = balances.count(fromID) ? balances[fromID] : 100;
+        int toVal = balances.count(toID) ? balances[toID] : 100;
+
+        int newFromVal = fromVal - tran.getTranAmount();
+        int newToVal = toVal + tran.getTranAmount();
+
+        balances[fromID] = newFromVal;
+        balances[toID] = newToVal;
+
+        tran.displayTransaction(newFromVal, newToVal);
     }
 }
 

@@ -85,14 +85,14 @@ int blockChain::getNodeNum() {
     return nodeNum;
 }
 
-void blockChain::displayTrans(int bNum, vector<int> &idNum, vector<int> &idVal) {
+void blockChain::displayTrans(int bNum, std::unordered_map<int, int> &balances) {
     list<block> copy;
     copy.assign(bChain.begin(), bChain.end());
     copy.reverse();
     int currBlockNum = 1;
     for (list<block>::iterator it = copy.begin(); it != copy.end(); ++it) {
         if (currBlockNum == bNum) {
-            it->displayTransctions(idNum, idVal);
+            it->displayTransctions(balances);
             break;
         }
         currBlockNum++;
