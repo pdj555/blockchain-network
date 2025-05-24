@@ -39,3 +39,26 @@ If you have g++ installed, compile and run the program using the terminal:
 For powershell:
 
         Get-Content input1.txt | ./p4
+
+## Architecture Overview
+
+The project is composed of four key classes:
+
+- **transaction** – represents a single transfer between two IDs.
+- **block** – stores a fixed number of transactions and links to the previous block using a hash.
+- **blockChain** – maintains the sequence of blocks for one node and verifies integrity.
+- **blockNetwork** – manages multiple blockchains and the adjacency relationships between nodes.
+
+Blocks compute their hashes from their contents and the previous block hash. This allows `blockChain` to verify that a chain has not been altered, and `blockNetwork` can validate every chain across the network.
+
+## Running the Tests
+
+The repository includes a small test suite built with a minimal Google Test wrapper. To build and run the tests:
+
+```bash
+cmake -S . -B build
+cmake --build build
+./build/tests
+```
+
+The tests exercise transaction creation, block insertion, and network verification.
