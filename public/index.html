@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Network dApp</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Blockchain Network dApp</h1>
+            <div id="wallet-info">
+                <button id="connect-wallet" class="btn btn-primary">Connect Wallet</button>
+                <div id="account-info" class="hidden">
+                    <span id="account-address"></span>
+                    <span id="account-balance"></span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Network Status Section -->
+            <section class="card">
+                <h2>Network Status</h2>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <label>Total Nodes:</label>
+                        <span id="total-nodes">-</span>
+                    </div>
+                    <div class="status-item">
+                        <label>Transactions Per Block:</label>
+                        <span id="tx-per-block">-</span>
+                    </div>
+                    <div class="status-item">
+                        <label>Contract Address:</label>
+                        <span id="contract-address" class="address">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Node Information Section -->
+            <section class="card">
+                <h2>Node Information</h2>
+                <div class="form-group">
+                    <label for="node-id">Node ID:</label>
+                    <input type="number" id="node-id" min="0" placeholder="Enter node ID">
+                    <button id="get-node-info" class="btn btn-secondary">Get Node Info</button>
+                </div>
+                <div id="node-info-display" class="info-display hidden">
+                    <div class="info-item">
+                        <strong>Node ID:</strong> <span id="display-node-id"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Block Count:</strong> <span id="display-block-count"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Active:</strong> <span id="display-active"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Connections:</strong> <span id="display-connections"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Balance Check Section -->
+            <section class="card">
+                <h2>Check Balance</h2>
+                <div class="form-group">
+                    <label for="user-id">User ID:</label>
+                    <input type="number" id="user-id" min="0" placeholder="Enter user ID">
+                    <button id="check-balance" class="btn btn-secondary">Check Balance</button>
+                </div>
+                <div id="balance-display" class="info-display hidden">
+                    <div class="balance-amount">
+                        <strong>Balance:</strong> <span id="display-balance"></span> units
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Transaction Section -->
+            <section class="card">
+                <h2>Add Transaction</h2>
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label for="tx-node">Node ID:</label>
+                        <input type="number" id="tx-node" min="0" required placeholder="Target node">
+                    </div>
+                    <div class="form-group">
+                        <label for="tx-from">From User ID:</label>
+                        <input type="number" id="tx-from" min="0" required placeholder="Sender ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="tx-to">To User ID:</label>
+                        <input type="number" id="tx-to" min="0" required placeholder="Receiver ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="tx-amount">Amount:</label>
+                        <input type="number" id="tx-amount" min="1" required placeholder="Amount to send">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Transaction</button>
+                </form>
+            </section>
+
+            <!-- Set Balance Section -->
+            <section class="card">
+                <h2>Set User Balance</h2>
+                <form id="balance-form">
+                    <div class="form-group">
+                        <label for="balance-user-id">User ID:</label>
+                        <input type="number" id="balance-user-id" min="0" required placeholder="User ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="balance-amount">Balance:</label>
+                        <input type="number" id="balance-amount" min="0" required placeholder="Initial balance">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Set Balance</button>
+                </form>
+            </section>
+
+            <!-- Add Connection Section -->
+            <section class="card">
+                <h2>Add Node Connection</h2>
+                <form id="connection-form">
+                    <div class="form-group">
+                        <label for="edge-from">From Node:</label>
+                        <input type="number" id="edge-from" min="0" required placeholder="Source node">
+                    </div>
+                    <div class="form-group">
+                        <label for="edge-to">To Node:</label>
+                        <input type="number" id="edge-to" min="0" required placeholder="Target node">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Connection</button>
+                </form>
+            </section>
+
+            <!-- Block Explorer Section -->
+            <section class="card">
+                <h2>Block Explorer</h2>
+                <div class="form-group">
+                    <label for="explore-node">Node ID:</label>
+                    <input type="number" id="explore-node" min="0" placeholder="Node to explore">
+                    <label for="explore-block">Block Number:</label>
+                    <input type="number" id="explore-block" min="0" placeholder="Block number">
+                    <button id="explore-block-btn" class="btn btn-secondary">Explore Block</button>
+                </div>
+                <div id="block-display" class="info-display hidden">
+                    <h3>Block Details</h3>
+                    <div class="info-item">
+                        <strong>Block Number:</strong> <span id="display-block-number"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Transaction Count:</strong> <span id="display-tx-count"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Previous Hash:</strong> <span id="display-prev-hash" class="hash"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Block Hash:</strong> <span id="display-block-hash" class="hash"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Timestamp:</strong> <span id="display-timestamp"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Event Log Section -->
+            <section class="card">
+                <h2>Event Log</h2>
+                <div id="event-log" class="event-log">
+                    <p class="no-events">No events yet. Perform an action to see events.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Blockchain Network dApp | Built with Web3.js and Hardhat</p>
+        </footer>
+    </div>
+
+    <!-- Include Web3.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.3.0/dist/web3.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

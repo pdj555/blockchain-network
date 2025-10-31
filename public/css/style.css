@@ -1,0 +1,354 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --accent-color: #e74c3c;
+    --dark-bg: #1a1a2e;
+    --card-bg: #16213e;
+    --text-color: #eaeaea;
+    --border-color: #0f3460;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --error-color: #e74c3c;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--dark-bg) 0%, #0f3460 100%);
+    color: var(--text-color);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+header {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+#wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#account-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+#account-address {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+
+#account-balance {
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #2980b9);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--secondary-color), #27ae60);
+    color: white;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(46, 204, 113, 0.4);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Cards */
+.card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+}
+
+.card h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    background: var(--dark-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Status Grid */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.status-item {
+    padding: 15px;
+    background: var(--dark-bg);
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.status-item label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.status-item span {
+    font-size: 1.2rem;
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+/* Info Display */
+.info-display {
+    background: var(--dark-bg);
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.info-display h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.info-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item strong {
+    color: var(--text-color);
+    margin-right: 10px;
+}
+
+.balance-amount {
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 20px;
+    color: var(--secondary-color);
+}
+
+/* Address and Hash Display */
+.address, .hash {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--warning-color);
+    word-break: break-all;
+}
+
+/* Event Log */
+.event-log {
+    max-height: 400px;
+    overflow-y: auto;
+    background: var(--dark-bg);
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.event-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    background: var(--card-bg);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 3px;
+    animation: slideIn 0.3s ease;
+}
+
+.event-item.error {
+    border-left-color: var(--error-color);
+}
+
+.event-item.warning {
+    border-left-color: var(--warning-color);
+}
+
+.event-time {
+    font-size: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.event-message {
+    color: var(--text-color);
+}
+
+.no-events {
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.6;
+    padding: 20px;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin-top: 40px;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2980b9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    #wallet-info {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #account-info {
+        align-items: center;
+    }
+}
