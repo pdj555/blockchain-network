@@ -6,13 +6,27 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy to get correct client IP (e.g., when behind nginx, load balancer)
+app.set('trust proxy', true);
+
 // Simple in-memory rate limiting middleware
 const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS = 100; // Max requests per window
 
+// Cleanup old entries every 5 minutes to prevent memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [clientId, data] of rateLimitMap.entries()) {
+    if (now > data.resetTime + RATE_LIMIT_WINDOW) {
+      rateLimitMap.delete(clientId);
+    }
+  }
+}, 300000); // 5 minutes
+
 const rateLimit = (req, res, next) => {
-  const clientId = req.ip || 'unknown';
+  // Get client IP with proxy support (X-Forwarded-For, X-Real-IP)
+  const clientId = req.ip || req.connection.remoteAddress || 'unknown';
   const now = Date.now();
   
   if (!rateLimitMap.has(clientId)) {

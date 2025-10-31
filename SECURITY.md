@@ -21,16 +21,28 @@ This document summarizes the security considerations and measures implemented in
 - Limits clients to 100 requests per 60-second window
 - Returns 429 (Too Many Requests) status when limit exceeded
 - Uses in-memory Map for tracking client requests by IP address
+- **Proxy support:** Configured Express to trust proxy headers (X-Forwarded-For, X-Real-IP) for accurate client identification
+- **Memory leak prevention:** Automatic cleanup of expired entries every 5 minutes
 
 **Implementation Details:**
 ```javascript
-const rateLimit = (req, res, next) => {
-  const clientId = req.ip || 'unknown';
+// Trust proxy to get correct client IP
+app.set('trust proxy', true);
+
+// Cleanup old entries every 5 minutes to prevent memory leak
+setInterval(() => {
   const now = Date.now();
-  
-  // Track requests per client
-  // Reset window after 60 seconds
-  // Max 100 requests per window
+  for (const [clientId, data] of rateLimitMap.entries()) {
+    if (now > data.resetTime + RATE_LIMIT_WINDOW) {
+      rateLimitMap.delete(clientId);
+    }
+  }
+}, 300000);
+
+const rateLimit = (req, res, next) => {
+  // Get client IP with proxy support
+  const clientId = req.ip || req.connection.remoteAddress || 'unknown';
+  // ... rate limiting logic
 }
 
 app.use(rateLimit); // Applied globally before all routes
@@ -39,6 +51,8 @@ app.use(rateLimit); // Applied globally before all routes
 **Why this is sufficient:**
 - The rate limiting middleware is applied globally using `app.use(rateLimit)` BEFORE any route handlers
 - This means ALL routes, including the static file serving route, are protected
+- Client identification works correctly behind proxies (nginx, load balancers) via `trust proxy` setting
+- Memory usage is controlled by automatic cleanup of expired entries
 - The CodeQL alert is a false positive in this case, as the tool may not recognize custom middleware as rate limiting
 
 **Note:** The current implementation uses in-memory storage which will reset on server restart. For production deployments, consider using Redis or a similar distributed cache for rate limiting across multiple server instances.
