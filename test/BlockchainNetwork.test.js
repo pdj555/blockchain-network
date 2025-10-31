@@ -46,8 +46,8 @@ describe("BlockchainNetwork", function () {
       const connections0 = await blockchainNetwork.getNodeConnections(0);
       const connections1 = await blockchainNetwork.getNodeConnections(1);
       
-      expect(connections0).to.include(1n);
-      expect(connections1).to.include(0n);
+      expect(connections0.map(n => Number(n))).to.include(1);
+      expect(connections1.map(n => Number(n))).to.include(0);
     });
 
     it("Should create bidirectional connections", async function () {
@@ -58,8 +58,8 @@ describe("BlockchainNetwork", function () {
       
       expect(connections2.length).to.equal(1);
       expect(connections3.length).to.equal(1);
-      expect(connections2[0]).to.equal(3n);
-      expect(connections3[0]).to.equal(2n);
+      expect(Number(connections2[0])).to.equal(3);
+      expect(Number(connections3[0])).to.equal(2);
     });
 
     it("Should revert for invalid node IDs", async function () {
