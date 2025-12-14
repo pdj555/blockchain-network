@@ -237,7 +237,7 @@ def main() -> int:
     parser.add_argument("input", nargs="?", default="-", help="Input file (default: stdin)")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format (default: text)")
     parser.add_argument("--openai", action="store_true", help="Generate an AI report using the OpenAI API")
-    parser.add_argument("--model", default="gpt-4.1-mini", help="OpenAI model for --openai (default: gpt-4.1-mini)")
+    parser.add_argument("--model", default="gpt-5-nano-2025-08-07", help="OpenAI model for --openai (default: gpt-5-nano-2025-08-07)")
     parser.add_argument(
         "--base-url",
         default=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com"),
