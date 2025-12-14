@@ -1,2 +1,15 @@
 build/
 
+# Binary executables
+p4
+p4_new
+p4_new2
+tests_bin
+tests_bin_new
+tests_bin_new2
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
