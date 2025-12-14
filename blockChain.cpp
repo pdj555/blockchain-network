@@ -1,38 +1,76 @@
 #include "blockChain.h"
+#include <iostream>
+#include <utility>
 
-blockChain::blockChain() {
-    currentNumBlocks = 0;
-}
+blockChain::blockChain()
+    : currentNumBlocks(0),
+      bChain(),
+      nodeNum(0),
+      logStream(&std::cout),
+      maxTransactionsPerBlock(10),
+      balances() {}
 
-blockChain::blockChain(int tPerB) {
-    bChain.push_front(block(currentNumBlocks, tPerB));
+blockChain::blockChain(int tPerB)
+    : currentNumBlocks(0),
+      bChain(),
+      nodeNum(0),
+      logStream(&std::cout),
+      maxTransactionsPerBlock(tPerB > 0 ? tPerB : 1),
+      balances() {
+    bChain.push_front(block(1, maxTransactionsPerBlock));
     currentNumBlocks = 1;
     bChain.front().setPrevHash("0");
     bChain.front().computeHash();
 }
 
 void blockChain::insertTran(const transaction &t) {
-    if (bChain.empty() ||
-        bChain.front().getCurrNumTran() == bChain.front().getMaxNumTran()) {
-        block nB(currentNumBlocks, bChain.front().getMaxNumTran());
-        nB.setPrevHash(bChain.front().getHash());
-        nB.inseartTran(t);
-        nB.computeHash();
-        insertBlockFront(nB);
-        cout << "Inserting transaction to block #" << currentNumBlocks
-             << " in node " << t.getTNodeNum() << endl;
-    } else {
-        bChain.front().inseartTran(t);
+    if (bChain.empty()) {
+        bChain.push_front(block(1, maxTransactionsPerBlock));
+        currentNumBlocks = 1;
+        bChain.front().setPrevHash("0");
         bChain.front().computeHash();
-        cout << "Inserting transaction to block #" << currentNumBlocks
-             << " in node " << t.getTNodeNum() << endl;
+        balances.clear();
+    }
+
+    transaction annotated = t;
+    annotated.setTNodeNum(nodeNum);
+    balances.emplace(annotated.getFromID(), 100);
+    balances.emplace(annotated.getToID(), 100);
+
+    const int fromID = annotated.getFromID();
+    const int toID = annotated.getToID();
+    const int amount = annotated.getTranAmount();
+
+    int &fromBalance = balances[fromID];
+    int &toBalance = balances[toID];
+
+    annotated.setFromValue(fromBalance);
+    annotated.setToValue(toBalance);
+
+    fromBalance -= amount;
+    toBalance += amount;
+
+    if (bChain.front().getCurrNumTran() >= maxTransactionsPerBlock) {
+        const int newBlockNumber = currentNumBlocks + 1;
+        block newBlock(newBlockNumber, maxTransactionsPerBlock);
+        newBlock.setPrevHash(bChain.front().getHash());
+        newBlock.insertTran(annotated);
+        newBlock.computeHash();
+        insertBlockFront(std::move(newBlock));
+    } else {
+        bChain.front().insertTran(annotated);
+        bChain.front().computeHash();
+    }
+
+    if (logStream != nullptr) {
+        *logStream << "Inserting transaction to block #" << currentNumBlocks
+                   << " in node " << t.getTNodeNum() << std::endl;
     }
 }
 
 void blockChain::insertBlockFront(block b) {
-    b.setNextBlock(&bChain.front());
-    bChain.push_front(b);
-    currentNumBlocks++;
+    bChain.push_front(std::move(b));
+    currentNumBlocks = static_cast<int>(bChain.size());
 }
 
 bool blockChain::verifyChain() const {
@@ -49,9 +87,9 @@ bool blockChain::verifyChain() const {
     return true;
 }
 
-void blockChain::tamperPrevHash(size_t index, const std::string &newPrev) {
+void blockChain::tamperPrevHash(std::size_t index, const std::string &newPrev) {
     auto it = bChain.begin();
-    size_t i = 0;
+    std::size_t i = 0;
     while (i < index && it != bChain.end()) {
         ++it;
         ++i;
@@ -59,6 +97,10 @@ void blockChain::tamperPrevHash(size_t index, const std::string &newPrev) {
     if (it != bChain.end()) {
         it->setPrevHash(newPrev);
     }
+}
+
+void blockChain::setLogStream(std::ostream *out) {
+    logStream = out;
 }
 
 void blockChain::setCurrNumBlocks(int cnb) {
@@ -69,41 +111,50 @@ void blockChain::setNodeNum(int node) {
     nodeNum = node;
 }
 
-int blockChain::getCurrNumBlocks() {
+int blockChain::getCurrNumBlocks() const {
     return currentNumBlocks;
 }
 
-block blockChain::getBack() {
+int blockChain::getTotalTransactions() const {
+    int total = 0;
+    for (const auto &blk : bChain) {
+        total += blk.getCurrNumTran();
+    }
+    return total;
+}
+
+const block &blockChain::getBack() const {
     return bChain.back();
 }
 
-block blockChain::getFront() {
+const block &blockChain::getFront() const {
     return bChain.front();
 }
 
-int blockChain::getNodeNum() {
+int blockChain::getNodeNum() const {
     return nodeNum;
 }
 
-void blockChain::displayTrans(int bNum, std::unordered_map<int, int> &balances) {
-    list<block> copy;
-    copy.assign(bChain.begin(), bChain.end());
-    copy.reverse();
-    int currBlockNum = 1;
-    for (list<block>::iterator it = copy.begin(); it != copy.end(); ++it) {
-        if (currBlockNum == bNum) {
-            it->displayTransctions(balances);
-            break;
-        }
-        currBlockNum++;
+const block *blockChain::getBlockFromOldest(int blockNumber) const {
+    if (blockNumber <= 0) {
+        return nullptr;
     }
+
+    int currBlockNum = 1;
+    for (auto it = bChain.crbegin(); it != bChain.crend(); ++it) {
+        if (currBlockNum == blockNumber) {
+            return &(*it);
+        }
+        ++currBlockNum;
+    }
+    return nullptr;
 }
 
-int blockChain::searchID(int ID) {
-    for (int i = 0; i < bChain.size(); i++) {
-        bChain.front().searchTrans(ID);
+bool blockChain::searchID(int transactionId) const {
+    for (const auto &blk : bChain) {
+        if (blk.searchTrans(transactionId)) {
+            return true;
+        }
     }
     return false;
 }
-
-

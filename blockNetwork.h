@@ -1,41 +1,32 @@
 #pragma once
-#include <iostream>
+#include <cstddef>
+#include <iosfwd>
 #include <vector>
-#include <unordered_map>
 #include "blockChain.h"
-using namespace std;
 
 class blockNetwork
 {
     int numNodes;
-    vector<blockChain> allNodes;
-    vector<vector<int>> adjList;
-    unordered_map<int, int> idMap;
-    int numIDs;
+    std::vector<blockChain> allNodes;
+    std::vector<std::vector<int>> adjList;
 public:
     blockNetwork();
     blockNetwork(int numberOfNodes, int maxTranPerBlock);
 
     void insertTranToNode(int node, const transaction &tran);
+    void setLogStream(std::ostream *out);
 
-    void setNumNodes(int nN);
-    void setNumIDs(int nI);
-
-    int getNumNodes();
-    int getNumIDs();
+    int getNumNodes() const;
+    int getNodeBlockCount(int node) const;
+    int getNodeTransactionCount(int node) const;
 
     void addEdge(int uNode, int vNode);
-    int getValueOfID(int id);
-    void setValueOfID(int id, int value);
 
-    int searchID(int id);
-    void addID(int id, int value);
-    void clearID();
-
-    void display();
+    void display(std::ostream &out) const;
+    void display() const;
 
     bool verifyAllChains() const;
 
     // Modify prevHash of a block in a given node for testing
-    void tamperPrevHash(size_t nodeIndex, size_t blockIndex, const std::string &newPrev);
+    void tamperPrevHash(std::size_t nodeIndex, std::size_t blockIndex, const std::string &newPrev);
 };

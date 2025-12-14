@@ -1,0 +1,33 @@
+# Validation Rules for Agent Changes
+
+pre_commit_checks:
+  - name: "Build Success"
+    command: "cmake -S . -B build && cmake --build build"
+    required: true
+    timeout_seconds: 300
+
+  - name: "All Tests Pass"
+    command: "./build/tests"
+    required: true
+    timeout_seconds: 60
+
+  - name: "No Compiler Warnings"
+    command: "cmake --build build 2>&1 | grep -i warning"
+    required: true
+    invert_result: true
+    timeout_seconds: 300
+
+  - name: "Main Program Compiles"
+    command: "test -f build/p4"
+    required: true
+
+post_commit_checks:
+  - name: "Verify No Regressions"
+    command: "./build/tests && ./build/p4 < input1.txt > /tmp/output_test.txt && diff -q output1.txt /tmp/output_test.txt"
+    required: true
+    timeout_seconds: 60
+
+failure_handling:
+  on_validation_failure: "revert_changes"
+  max_retries: 3
+  pause_on_failure_minutes: 5

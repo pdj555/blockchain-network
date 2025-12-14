@@ -1,7 +1,6 @@
 #pragma once
-#include <iostream>
+#include <iosfwd>
 #include <string>
-using namespace std;
 
 class transaction
 {
@@ -12,16 +11,21 @@ class transaction
     int toID;
     int toValue;
     int tAmount;
-    string timeStamp;
+    std::string timeStamp;
 public:
     transaction();
-    transaction(int tempNode, int temptID, int tempfromID, int temptoID, int temptAmount, string temptimeStamp);
+    transaction(int tempNode,
+                int temptID,
+                int tempfromID,
+                int temptoID,
+                int temptAmount,
+                const std::string &temptimeStamp);
 
     void setTranID(int tranID);
     void setFromID(int fID);
     void setToID(int targetID);
     void setTranAmount(int tranAmount);
-    void setTimeStamp(string tS);
+    void setTimeStamp(const std::string &tS);
     void setFromValue(int fV);
     void setToValue(int tV);
     void setTNodeNum(int node);
@@ -30,10 +34,11 @@ public:
     int getFromID() const;
     int getToID() const;
     int getTranAmount() const;
-    string getTimeStamp() const;
+    const std::string &getTimeStamp() const;
     int getFromValue() const;
     int getToValue() const;
     int getTNodeNum() const;
 
-    void displayTransaction(int newFromValue, int newToValue);
+    void displayTransaction(std::ostream &out) const;
+    void displayTransaction() const;
 };

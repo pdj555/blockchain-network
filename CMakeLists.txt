@@ -23,9 +23,9 @@ add_executable(tests
     tests/test_transaction.cpp
     tests/test_blockchain.cpp
     tests/test_network.cpp
+    tests/test_sha256.cpp
     gtest/gtest_main.cpp
 )
 target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(tests PRIVATE blockchain)
 add_test(NAME all_tests COMMAND tests)
-
