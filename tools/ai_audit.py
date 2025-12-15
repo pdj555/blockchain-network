@@ -69,8 +69,8 @@ def parse_network(tokens: List[str]) -> Tuple[int, int, int, int, List[Tuple[int
             to_id = next_int("transaction.to_id")
             amount = next_int("transaction.amount")
             timestamp = next_token("transaction.timestamp")
-        except StopIteration:
-            break
+        except StopIteration as exc:
+            raise ValueError(f"Truncated transaction starting at node {node}: missing required fields") from exc
 
         transactions.append(
             Transaction(
