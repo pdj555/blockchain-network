@@ -6,13 +6,12 @@
 
 TEST(BlockNetworkTest, DisplayOutput) {
     blockNetwork net(1, 2);
+    net.setLogStream(nullptr);
     transaction t(0, 1, 1, 2, 5, "ts");
     net.insertTranToNode(0, t);
 
     std::ostringstream oss;
-    auto* old = std::cout.rdbuf(oss.rdbuf());
-    net.display();
-    std::cout.rdbuf(old);
+    net.display(oss);
     std::string output = oss.str();
 
     EXPECT_NE(output.find("Node 0"), std::string::npos);
@@ -21,6 +20,7 @@ TEST(BlockNetworkTest, DisplayOutput) {
 
 TEST(BlockNetworkTest, VerifyAllChains) {
     blockNetwork net(1, 2);
+    net.setLogStream(nullptr);
     transaction t(0, 1, 1, 2, 5, "ts");
     net.insertTranToNode(0, t);
     EXPECT_TRUE(net.verifyAllChains());
@@ -28,6 +28,7 @@ TEST(BlockNetworkTest, VerifyAllChains) {
 
 TEST(BlockNetworkTest, DetectTampering) {
     blockNetwork net(1, 2);
+    net.setLogStream(nullptr);
     transaction t1(0, 1, 1, 2, 5, "ts");
     transaction t2(0, 2, 2, 3, 7, "ts2");
     net.insertTranToNode(0, t1);
@@ -35,4 +36,3 @@ TEST(BlockNetworkTest, DetectTampering) {
     net.tamperPrevHash(0, 0, "bad");
     EXPECT_TRUE(!net.verifyAllChains());
 }
-

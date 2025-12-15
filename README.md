@@ -40,6 +40,18 @@ For powershell:
 
         Get-Content input1.txt | ./p4
 
+### CLI Options
+
+The `p4` executable supports a few flags for real-world usage:
+
+- `p4 --help` – show usage
+- `p4 --quiet` – suppress per-transaction insert logs
+- `p4 --verify --no-display` – validate chain integrity and exit non-zero on failure
+- `p4 --json input1.txt` – print a JSON summary (suppresses verbose output)
+- `p4 input1.txt` – read input from a file instead of stdin
+
+For an optional, higher-level audit report (including OpenAI-backed summaries), see `tools/ai_audit.py`.
+
 ## Architecture Overview
 
 The project is composed of four key classes:
@@ -49,7 +61,7 @@ The project is composed of four key classes:
 - **blockChain** – maintains the sequence of blocks for one node and verifies integrity.
 - **blockNetwork** – manages multiple blockchains and the adjacency relationships between nodes.
 
-Blocks compute their hashes from their contents and the previous block hash. This allows `blockChain` to verify that a chain has not been altered, and `blockNetwork` can validate every chain across the network.
+Blocks compute their hashes (SHA-256) from their contents and the previous block hash. This allows `blockChain` to verify that a chain has not been altered, and `blockNetwork` can validate every chain across the network.
 
 ## Running the Tests
 

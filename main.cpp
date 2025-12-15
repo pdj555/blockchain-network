@@ -1,48 +1,142 @@
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 #include "blockNetwork.h"
 
-using namespace std;
+namespace {
 
-int main()
+struct Options {
+    bool quiet = false;
+    bool verify = false;
+    bool display = true;
+    bool json = false;
+    std::string inputPath;
+};
+
+void printUsage(const char *argv0) {
+    std::cout << "Usage: " << argv0 << " [options] [input_file]\n\n"
+              << "Reads the network description from stdin by default.\n\n"
+              << "Options:\n"
+              << "  -h, --help       Show this help\n"
+              << "  --quiet          Suppress per-transaction insert logs\n"
+              << "  --verify         Verify all chains and set exit code\n"
+              << "  --no-display     Do not print the full ledger output\n"
+              << "  --json           Print a machine-readable JSON summary\n";
+}
+
+enum class ParseResult { ok, help, error };
+
+ParseResult parseArgs(int argc, char **argv, Options &opts) {
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg(argv[i]);
+        if (arg == "-h" || arg == "--help") {
+            printUsage(argv[0]);
+            return ParseResult::help;
+        }
+        if (arg == "--quiet") {
+            opts.quiet = true;
+            continue;
+        }
+        if (arg == "--verify") {
+            opts.verify = true;
+            continue;
+        }
+        if (arg == "--no-display") {
+            opts.display = false;
+            continue;
+        }
+        if (arg == "--json") {
+            opts.json = true;
+            opts.quiet = true;
+            opts.verify = true;
+            opts.display = false;
+            continue;
+        }
+        if (!arg.empty() && arg[0] == '-') {
+            std::cerr << "Unknown option: " << arg << std::endl;
+            return ParseResult::error;
+        }
+        if (!opts.inputPath.empty()) {
+            std::cerr << "Multiple input files provided; expected at most one." << std::endl;
+            return ParseResult::error;
+        }
+        opts.inputPath = arg;
+    }
+    return ParseResult::ok;
+}
+
+} // namespace
+
+int main(int argc, char **argv)
 {
+    Options opts;
+    const ParseResult parseResult = parseArgs(argc, argv, opts);
+    if (parseResult == ParseResult::help) {
+        return 0;
+    }
+    if (parseResult == ParseResult::error) {
+        return 1;
+    }
+
+    std::ifstream inputFile;
+    std::istream *in = &std::cin;
+    if (!opts.inputPath.empty()) {
+        inputFile.open(opts.inputPath);
+        if (!inputFile.is_open()) {
+            std::cerr << "Failed to open input file: " << opts.inputPath << std::endl;
+            return 1;
+        }
+        in = &inputFile;
+    }
+
     int numNodesInNetwork;
     int numEdges;
-    if (!(cin >> numNodesInNetwork) || numNodesInNetwork <= 0) {
-        cerr << "Invalid number of nodes" << endl;
+    if (!(*in >> numNodesInNetwork) || numNodesInNetwork <= 0) {
+        std::cerr << "Invalid number of nodes" << std::endl;
         return 1;
     }
-    cout << "Number of nodes: " << numNodesInNetwork << endl;
+    if (!opts.json) {
+        std::cout << "Number of nodes: " << numNodesInNetwork << std::endl;
+    }
 
     int numTransactionsPerBlock;
-    if (!(cin >> numTransactionsPerBlock) || numTransactionsPerBlock <= 0) {
-        cerr << "Invalid number of transactions per block" << endl;
+    if (!(*in >> numTransactionsPerBlock) || numTransactionsPerBlock <= 0) {
+        std::cerr << "Invalid number of transactions per block" << std::endl;
         return 1;
     }
-    cout << "Number of transactions per block: " << numTransactionsPerBlock << endl;
+    if (!opts.json) {
+        std::cout << "Number of transactions per block: " << numTransactionsPerBlock << std::endl;
+    }
 
     int totalNumTransactions;
-    if (!(cin >> totalNumTransactions) || totalNumTransactions < 0) {
-        cerr << "Invalid total number of transactions" << endl;
+    if (!(*in >> totalNumTransactions) || totalNumTransactions < 0) {
+        std::cerr << "Invalid total number of transactions" << std::endl;
         return 1;
     }
-    cout << "Total number of transactions: " << totalNumTransactions << endl;
+    if (!opts.json) {
+        std::cout << "Total number of transactions: " << totalNumTransactions << std::endl;
+    }
 
     blockNetwork n1(numNodesInNetwork, numTransactionsPerBlock);
+    if (opts.quiet) {
+        n1.setLogStream(nullptr);
+    }
 
     int uNode;
     int vNode;
-    if (!(cin >> numEdges) || numEdges < 0) {
-        cerr << "Invalid number of edges" << endl;
+    if (!(*in >> numEdges) || numEdges < 0) {
+        std::cerr << "Invalid number of edges" << std::endl;
         return 1;
     }
     for (int i = 0; i < numEdges; i++) {
-        if (!(cin >> uNode >> vNode)) {
-            cerr << "Unexpected end of edge list" << endl;
+        if (!(*in >> uNode >> vNode)) {
+            std::cerr << "Unexpected end of edge list" << std::endl;
             return 1;
         }
         if (uNode < 0 || uNode >= numNodesInNetwork ||
             vNode < 0 || vNode >= numNodesInNetwork) {
-            cerr << "Invalid edge " << uNode << " -> " << vNode << endl;
+            std::cerr << "Invalid edge " << uNode << " -> " << vNode << std::endl;
             return 1;
         }
         n1.addEdge(uNode, vNode);
@@ -53,29 +147,61 @@ int main()
     int fromID;
     int toID;
     int amountTrans;
-    string timeStamp;
+    std::string timeStamp;
 
     while (true) {
-        if (!(cin >> node >> transactionID >> fromID >> toID >> amountTrans >> timeStamp)) {
-            if (cin.eof()) {
+        if (!(*in >> node >> transactionID >> fromID >> toID >> amountTrans >> timeStamp)) {
+            if (in->eof()) {
                 break;
             }
-            cerr << "Malformed transaction entry" << endl;
+            std::cerr << "Malformed transaction entry" << std::endl;
             return 1;
         }
         if (node < 0 || node >= numNodesInNetwork) {
-            cerr << "Invalid node in transaction" << endl;
+            std::cerr << "Invalid node in transaction" << std::endl;
             return 1;
         }
         if (amountTrans <= 0) {
-            cerr << "Invalid transaction amount" << endl;
+            std::cerr << "Invalid transaction amount" << std::endl;
             return 1;
         }
         transaction t(node, transactionID, fromID, toID, amountTrans, timeStamp);
         n1.insertTranToNode(node, t);
     }
 
-    n1.display();
+    if (opts.display) {
+        n1.display();
+    }
+
+    bool verified = true;
+    if (opts.verify) {
+        verified = n1.verifyAllChains();
+    }
+
+    if (opts.json) {
+        std::cout << "{\n";
+        std::cout << "  \"nodes\": " << numNodesInNetwork << ",\n";
+        std::cout << "  \"transactions_per_block\": " << numTransactionsPerBlock << ",\n";
+        std::cout << "  \"total_transactions_declared\": " << totalNumTransactions << ",\n";
+        std::cout << "  \"verified\": " << (verified ? "true" : "false") << ",\n";
+        std::cout << "  \"node_summaries\": [\n";
+        for (int nodeIndex = 0; nodeIndex < numNodesInNetwork; ++nodeIndex) {
+            std::cout << "    {\"node\": " << nodeIndex
+                      << ", \"blocks\": " << n1.getNodeBlockCount(nodeIndex)
+                      << ", \"transactions\": " << n1.getNodeTransactionCount(nodeIndex) << "}";
+            if (nodeIndex + 1 < numNodesInNetwork) {
+                std::cout << ",";
+            }
+            std::cout << "\n";
+        }
+        std::cout << "  ]\n";
+        std::cout << "}\n";
+    }
+
+    if (opts.verify && !verified) {
+        std::cerr << "Chain verification failed" << std::endl;
+        return 2;
+    }
+
     return 0;
 }
-

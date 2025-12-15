@@ -1,0 +1,16 @@
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Session files (optional - uncomment if you don't want to track sessions in git)
+# progress/current_session.json
+# progress/history.jsonl
+
+# Build artifacts (if accidentally created here)
+build/
+

@@ -1,31 +1,53 @@
 #include "block.h"
+#include "sha256.h"
+#include <iostream>
+#include <stdexcept>
 
-block::block() {
-    blockNumber = 0;
-    maxNumTransactions = 10;
-    currentNumTransactions = 0;
-}
+block::block()
+    : blockNumber(0),
+      currentNumTransactions(0),
+      maxNumTransactions(10),
+      bTransactions(),
+      hash(),
+      prevHash() {}
 
-block::block(int bNumber, int maxTransactions) {
-    blockNumber = bNumber;
-    maxNumTransactions = maxTransactions;
-    currentNumTransactions = 0;
-}
+block::block(int bNumber, int maxTransactions)
+    : blockNumber(bNumber),
+      currentNumTransactions(0),
+      maxNumTransactions(maxTransactions),
+      bTransactions(),
+      hash(),
+      prevHash() {}
 
 void block::computeHash() {
     hash = calculateHash();
 }
 
 std::string block::calculateHash() const {
-    std::string data = prevHash + std::to_string(blockNumber);
+    std::string data;
+    data.reserve(prevHash.size() + 32U + (bTransactions.size() * 64U));
+    data.append(prevHash);
+    data.push_back('|');
+    data.append(std::to_string(blockNumber));
     for (const auto &t : bTransactions) {
+        data.push_back('|');
+        data += std::to_string(t.getTNodeNum());
+        data.push_back(',');
         data += std::to_string(t.getTranID());
+        data.push_back(',');
         data += std::to_string(t.getFromID());
+        data.push_back(',');
+        data += std::to_string(t.getFromValue());
+        data.push_back(',');
         data += std::to_string(t.getToID());
+        data.push_back(',');
+        data += std::to_string(t.getToValue());
+        data.push_back(',');
         data += std::to_string(t.getTranAmount());
+        data.push_back(',');
         data += t.getTimeStamp();
     }
-    return std::to_string(std::hash<std::string>{}(data));
+    return crypto::sha256_hex(data);
 }
 
 std::string block::getHash() const {
@@ -40,9 +62,9 @@ std::string block::getPrevHash() const {
     return prevHash;
 }
 
-void block::inseartTran(transaction t) {
+void block::insertTran(const transaction &t) {
     bTransactions.push_back(t);
-    currentNumTransactions++;
+    currentNumTransactions = static_cast<int>(bTransactions.size());
 }
 
 void block::setBlockNumber(int bN) {
@@ -57,64 +79,40 @@ void block::setMaxNumTran(int mnt) {
     maxNumTransactions = mnt;
 }
 
-void block::setNextBlock(block* bA) {
-    nextBlock = bA;
-}
-
-void block::setNumNodesInNetwork(int numNodes) {
-    numNodesInNetwork = numNodes;
-}
-
-int block::getBlockNumber() {
+int block::getBlockNumber() const {
     return blockNumber;
 }
 
-int block::getCurrNumTran() {
+int block::getCurrNumTran() const {
     return currentNumTransactions;
 }
 
-int block::getMaxNumTran() {
+int block::getMaxNumTran() const {
     return maxNumTransactions;
 }
 
-block* block::getNextBlock() {
-    return nextBlock;
-}
-
-int block::getNumNodesInNetwork() {
-    return numNodesInNetwork;
-}
-
-transaction block::getTran(int index) {
+const transaction &block::getTran(std::size_t index) const {
+    if (index >= bTransactions.size()) {
+        throw std::out_of_range("transaction index out of range");
+    }
     return bTransactions[index];
 }
 
-void block::displayTransctions(std::unordered_map<int, int> &balances) {
-    for (auto &tran : bTransactions) {
-        int fromID = tran.getFromID();
-        int toID = tran.getToID();
-
-        int fromVal = balances.count(fromID) ? balances[fromID] : 100;
-        int toVal = balances.count(toID) ? balances[toID] : 100;
-
-        int newFromVal = fromVal - tran.getTranAmount();
-        int newToVal = toVal + tran.getTranAmount();
-
-        balances[fromID] = newFromVal;
-        balances[toID] = newToVal;
-
-        tran.displayTransaction(newFromVal, newToVal);
+void block::displayTransactions(std::ostream &out) const {
+    for (const auto &tran : bTransactions) {
+        tran.displayTransaction(out);
     }
 }
 
-bool block::searchTrans(int id) {
-    bool find = false;
-    for (int i = 0; i < bTransactions.size(); i++) {
+void block::displayTransactions() const {
+    displayTransactions(std::cout);
+}
+
+bool block::searchTrans(int id) const {
+    for (std::size_t i = 0; i < bTransactions.size(); ++i) {
         if (bTransactions[i].getTranID() == id) {
-            find = true;
+            return true;
         }
     }
-    return find;
+    return false;
 }
-
-

@@ -1,0 +1,77 @@
+# Agent Configuration for 24-Hour Codex Runs
+
+runtime:
+  duration_hours: 24
+  checkpoint_interval_minutes: 60
+  max_iterations_per_hour: 10
+  pause_on_failure: true
+  resume_from_checkpoint: true
+
+improvement_focus:
+  priority_order:
+    - memory_safety
+    - code_quality
+    - error_handling
+    - documentation
+    - performance
+    - test_coverage
+
+  memory_safety:
+    enabled: true
+    focus: "Replace manual new/delete with smart pointers, ensure RAII"
+
+  code_quality:
+    enabled: true
+    focus: "Fix typos, improve naming, remove dead code"
+
+  error_handling:
+    enabled: true
+    focus: "Add validation, improve error messages"
+
+  documentation:
+    enabled: true
+    focus: "Add comments for complex logic, improve README"
+
+  performance:
+    enabled: true
+    focus: "Optimize data structures, reduce unnecessary copies"
+
+  test_coverage:
+    enabled: true
+    focus: "Add tests for edge cases, improve existing tests"
+
+code_quality_standards:
+  principles:
+    - "Zero fluff - every line must have high value"
+    - "Complete fixes, never temporary band-aids"
+    - "Simplicity and self-explaining code"
+    - "Follow existing codebase patterns"
+    - "Apple engineering discipline"
+
+  style:
+    - "Use modern C++ features appropriately"
+    - "Prefer const correctness"
+    - "Use meaningful variable names"
+    - "Keep functions focused and small"
+
+validation:
+  required_before_commit:
+    - all_tests_pass
+    - no_compiler_warnings
+    - successful_build
+    - no_regressions
+
+  test_command: "cmake --build build && ./build/tests"
+  build_command: "cmake -S . -B build && cmake --build build"
+
+commit_strategy:
+  atomic_commits: true
+  meaningful_messages: true
+  one_improvement_per_commit: true
+  format: "improve: <brief description>"
+
+logging:
+  directory: ".agent/logs"
+  level: "info"
+  rotate_after_hours: 6
+  include_timestamps: true

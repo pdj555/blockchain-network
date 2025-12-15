@@ -1,18 +1,30 @@
 #include "transaction.h"
+#include <iostream>
 
-transaction::transaction() {}
+transaction::transaction()
+    : nodeNum(0),
+      tID(0),
+      fromID(0),
+      fromValue(100),
+      toID(0),
+      toValue(100),
+      tAmount(0),
+      timeStamp() {}
 
-transaction::transaction(int tempNode, int temptID, int tempfromID, int temptoID, int temptAmount, string temptimeStamp)
-{
-    nodeNum = tempNode;
-    tID = temptID;
-    fromID = tempfromID;
-    toID = temptoID;
-    tAmount = temptAmount;
-    timeStamp = temptimeStamp;
-    fromValue = 100;
-    toValue = 100;
-}
+transaction::transaction(int tempNode,
+                         int temptID,
+                         int tempfromID,
+                         int temptoID,
+                         int temptAmount,
+                         const std::string &temptimeStamp)
+    : nodeNum(tempNode),
+      tID(temptID),
+      fromID(tempfromID),
+      fromValue(100),
+      toID(temptoID),
+      toValue(100),
+      tAmount(temptAmount),
+      timeStamp(temptimeStamp) {}
 
 void transaction::setTranID(int tranID) {
     tID = tranID;
@@ -30,7 +42,7 @@ void transaction::setTranAmount(int tranAmount) {
     tAmount = tranAmount;
 }
 
-void transaction::setTimeStamp(string tS) {
+void transaction::setTimeStamp(const std::string &tS) {
     timeStamp = tS;
 }
 
@@ -62,7 +74,7 @@ int transaction::getTranAmount() const {
     return tAmount;
 }
 
-string transaction::getTimeStamp() const {
+const std::string &transaction::getTimeStamp() const {
     return timeStamp;
 }
 
@@ -78,10 +90,11 @@ int transaction::getToValue() const {
     return toValue;
 }
 
-void transaction::displayTransaction(int newFromValue, int newToValue) {
-    cout << tID << " " << fromID << " " << newFromValue + tAmount << " " << toID << " " << newToValue - tAmount << " " << tAmount << " " << timeStamp << endl;
-    fromValue = newFromValue;
-    toValue = newToValue;
+void transaction::displayTransaction(std::ostream &out) const {
+    out << tID << " " << fromID << " " << fromValue << " " << toID << " " << toValue << " " << tAmount
+        << " " << timeStamp << std::endl;
 }
 
-
+void transaction::displayTransaction() const {
+    displayTransaction(std::cout);
+}

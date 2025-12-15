@@ -1,102 +1,85 @@
 #include "blockNetwork.h"
+#include <cstddef>
+#include <iostream>
+#include <utility>
 
-blockNetwork::blockNetwork() {
-    numNodes = 0;
-}
+blockNetwork::blockNetwork()
+    : numNodes(0),
+      allNodes(),
+      adjList() {}
 
-blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock) {
-    numNodes = 0;
-    adjList.resize(numberOfNodes);
-    for (int i = 0; i < numberOfNodes; i++) {
-        blockChain newChain(maxTranPerBlock);
-        numNodes++;
-        newChain.setNodeNum(numNodes);
-        allNodes.push_back(newChain);
+blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock)
+    : numNodes(numberOfNodes > 0 ? numberOfNodes : 0),
+      allNodes(),
+      adjList(static_cast<std::size_t>(numNodes)) {
+    const int maxTransactions = maxTranPerBlock > 0 ? maxTranPerBlock : 1;
+    allNodes.reserve(static_cast<std::size_t>(numNodes));
+    for (int i = 0; i < numNodes; ++i) {
+        blockChain newChain(maxTransactions);
+        newChain.setNodeNum(i);
+        allNodes.push_back(std::move(newChain));
     }
 }
 
 void blockNetwork::insertTranToNode(int node, const transaction &tran) {
-    if (node >= 0 && node < numNodes) {
-        allNodes[node].insertTran(tran);
+    if (node < 0 || static_cast<std::size_t>(node) >= allNodes.size()) {
+        return;
+    }
+    allNodes[static_cast<std::size_t>(node)].insertTran(tran);
+}
+
+void blockNetwork::setLogStream(std::ostream *out) {
+    for (auto &chain : allNodes) {
+        chain.setLogStream(out);
     }
 }
 
-void blockNetwork::setNumNodes(int nN) {
-    numNodes = nN;
-}
-
-void blockNetwork::setNumIDs(int nI) {
-    numIDs = nI;
-}
-
-int blockNetwork::getNumNodes() {
+int blockNetwork::getNumNodes() const {
     return numNodes;
 }
 
-int blockNetwork::getNumIDs() {
-    return numIDs;
+int blockNetwork::getNodeBlockCount(int node) const {
+    if (node < 0 || static_cast<std::size_t>(node) >= allNodes.size()) {
+        return 0;
+    }
+    return allNodes[static_cast<std::size_t>(node)].getCurrNumBlocks();
+}
+
+int blockNetwork::getNodeTransactionCount(int node) const {
+    if (node < 0 || static_cast<std::size_t>(node) >= allNodes.size()) {
+        return 0;
+    }
+    return allNodes[static_cast<std::size_t>(node)].getTotalTransactions();
 }
 
 void blockNetwork::addEdge(int uNode, int vNode) {
-    if (uNode >= 0 && uNode < adjList.size() && vNode >= 0 && vNode < adjList.size()) {
-        adjList[uNode].push_back(vNode);
+    const std::size_t numAdjNodes = adjList.size();
+    if (uNode >= 0 && static_cast<std::size_t>(uNode) < numAdjNodes && vNode >= 0 &&
+        static_cast<std::size_t>(vNode) < numAdjNodes) {
+        adjList[static_cast<std::size_t>(uNode)].push_back(vNode);
     }
 }
 
-int blockNetwork::getValueOfID(int id) {
-    auto it = idMap.find(id);
-    if (it != idMap.end()) {
-        return it->second;
-    }
-    return -1;
-}
+void blockNetwork::display(std::ostream &out) const {
+    for (int i = 0; i < numNodes; ++i) {
+        out << "~~~ Node " << i << ": " << std::endl;
+        const int numOfBlocksInNode = allNodes[static_cast<std::size_t>(i)].getCurrNumBlocks();
+        out << "Current number of blocks: " << numOfBlocksInNode << std::endl;
 
-void blockNetwork::setValueOfID(int id, int value) {
-    idMap[id] = value;
-}
+        for (int blockNum = 1; blockNum <= numOfBlocksInNode; ++blockNum) {
+            const block *blk = allNodes[static_cast<std::size_t>(i)].getBlockFromOldest(blockNum);
+            const int numTransInBlock = blk != nullptr ? blk->getCurrNumTran() : 0;
 
-int blockNetwork::searchID(int id) {
-    auto it = idMap.find(id);
-    if (it != idMap.end()) {
-        return it->second;
-    }
-    return -1;
-}
-
-void blockNetwork::addID(int id, int value) {
-    idMap[id] = value;
-}
-
-void blockNetwork::clearID() {
-    idMap.clear();
-}
-
-void blockNetwork::display() {
-    int numOfBlocksInNode;
-    int blockNum;
-    int numTransInBlock;
-    int numTrans = 0;
-
-    for (int i = 0; i < numNodes; i++) {
-        cout << "~~~ Node " << i << ": " << endl;
-        numOfBlocksInNode = allNodes[i].getCurrNumBlocks();
-        cout << "Current number of blocks: " << numOfBlocksInNode << endl;
-        for (int j = 0; j < numOfBlocksInNode; j++){
-            blockNum = j+1;
-            if (blockNum == numOfBlocksInNode) {
-                numTransInBlock = allNodes[i].getFront().getCurrNumTran();
-                numTrans += allNodes[i].getFront().getCurrNumTran();
+            out << "Block Number: " << blockNum << " -- Number of Transactions:" << numTransInBlock << std::endl;
+            if (blk != nullptr) {
+                blk->displayTransactions(out);
             }
-            else {
-                numTransInBlock = allNodes[i].getBack().getCurrNumTran();
-                numTrans += allNodes[i].getBack().getCurrNumTran();
-            }
-            cout << "Block Number: " << blockNum << " -- Number of Transactions:";
-            cout << numTransInBlock << endl;
-            allNodes[i].displayTrans(blockNum, idMap);
         }
-        idMap.clear();
     }
+}
+
+void blockNetwork::display() const {
+    display(std::cout);
 }
 
 bool blockNetwork::verifyAllChains() const {
@@ -108,10 +91,8 @@ bool blockNetwork::verifyAllChains() const {
     return true;
 }
 
-void blockNetwork::tamperPrevHash(size_t nodeIndex, size_t blockIndex, const std::string &newPrev) {
+void blockNetwork::tamperPrevHash(std::size_t nodeIndex, std::size_t blockIndex, const std::string &newPrev) {
     if (nodeIndex < allNodes.size()) {
         allNodes[nodeIndex].tamperPrevHash(blockIndex, newPrev);
     }
 }
-
-
