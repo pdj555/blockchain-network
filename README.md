@@ -48,7 +48,7 @@ The `p4` executable supports a few flags for real-world usage:
 - `p4 --quiet` – suppress per-transaction insert logs
 - `p4 --verify --no-display` – validate chain integrity and exit non-zero on failure
 - `p4 --json input1.txt` – print a JSON summary (suppresses verbose output)
-  - Includes network health metrics: `edges`, `isolated_nodes`, `max_reachable_nodes`, and `max_broadcast_coverage`.
+  - Includes network health metrics: `edges`, `isolated_nodes`, `max_reachable_nodes`, `max_broadcast_coverage`, `largest_consensus_group`, and `consensus_ratio`.
 - `p4 --origin-only input1.txt` – disable network propagation and keep legacy behavior
 - `p4 input1.txt` – read input from a file instead of stdin
 
@@ -58,6 +58,7 @@ Safety behavior (default):
 - Transactions that overspend sender funds are rejected.
 - Duplicate transaction IDs within the same node are rejected.
 - The program validates that parsed transactions match the declared total count.
+- In non-JSON mode, the CLI prints a concise execution summary with accepted/rejected transaction counts and consensus ratio.
 
 For an optional, higher-level audit report (including OpenAI-backed summaries), see `tools/ai_audit.py`.
 

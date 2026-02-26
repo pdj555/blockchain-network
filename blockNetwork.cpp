@@ -4,6 +4,7 @@
 #include <iostream>
 #include <utility>
 #include <algorithm>
+#include <unordered_map>
 
 blockNetwork::blockNetwork()
     : numNodes(0),
@@ -195,6 +196,30 @@ int blockNetwork::getIsolatedNodeCount() const {
         }
     }
     return isolatedCount;
+}
+
+int blockNetwork::getLargestConsensusGroupSize() const {
+    if (allNodes.empty()) {
+        return 0;
+    }
+
+    std::unordered_map<std::string, int> groupCounts;
+    int largestGroup = 0;
+    for (const auto &chain : allNodes) {
+        const int count = ++groupCounts[chain.getConsensusFingerprint()];
+        if (count > largestGroup) {
+            largestGroup = count;
+        }
+    }
+    return largestGroup;
+}
+
+double blockNetwork::getConsensusRatio() const {
+    if (allNodes.empty()) {
+        return 0.0;
+    }
+    return static_cast<double>(getLargestConsensusGroupSize()) /
+           static_cast<double>(allNodes.size());
 }
 
 void blockNetwork::addEdge(int uNode, int vNode) {

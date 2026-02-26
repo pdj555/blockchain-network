@@ -130,3 +130,28 @@ TEST(BlockNetworkTest, RejectsDuplicateTransactionIdsAcrossNetwork) {
     EXPECT_EQ(net.getNodeTransactionCount(1), 0);
     EXPECT_EQ(net.getNodeTransactionCount(2), 0);
 }
+
+TEST(BlockNetworkTest, ReportsFullConsensusWithPropagation) {
+    blockNetwork net(3, 2);
+    net.setLogStream(nullptr);
+    net.addEdge(0, 1);
+    net.addEdge(1, 2);
+
+    EXPECT_TRUE(net.insertTranToNode(0, transaction(0, 1, 1, 2, 10, "ts1")));
+
+    EXPECT_EQ(net.getLargestConsensusGroupSize(), 3);
+    EXPECT_EQ(net.getConsensusRatio(), 1.0);
+}
+
+TEST(BlockNetworkTest, ReportsPartialConsensusWhenNodesDiverge) {
+    blockNetwork net(3, 2);
+    net.setLogStream(nullptr);
+    net.addEdge(0, 1);
+
+    EXPECT_TRUE(net.insertTranToNode(0, transaction(0, 1, 1, 2, 10, "ts1")));
+    net.setPropagationEnabled(false);
+    EXPECT_TRUE(net.insertTranToNode(2, transaction(2, 2, 3, 4, 5, "ts2")));
+
+    EXPECT_EQ(net.getLargestConsensusGroupSize(), 2);
+    EXPECT_EQ(net.getConsensusRatio(), 2.0 / 3.0);
+}
