@@ -88,3 +88,19 @@ TEST(BlockChainTest, RejectsDuplicateTransactionIds) {
     EXPECT_EQ(chain.getTotalTransactions(), 1);
     EXPECT_EQ(chain.getRejectedTransactions(), 1);
 }
+
+
+TEST(BlockChainTest, SearchIdTracksTransactionsAcrossBlocks) {
+    blockChain chain(1);
+    chain.setLogStream(nullptr);
+
+    transaction t1(0, 10, 1, 2, 10, "t1");
+    transaction t2(0, 11, 2, 3, 5, "t2");
+
+    EXPECT_TRUE(chain.insertTran(t1));
+    EXPECT_TRUE(chain.insertTran(t2));
+
+    EXPECT_TRUE(chain.searchID(10));
+    EXPECT_TRUE(chain.searchID(11));
+    EXPECT_TRUE(!chain.searchID(99));
+}
