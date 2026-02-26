@@ -36,6 +36,8 @@ public:
     int getCurrNumBlocks() const;
     int getTotalTransactions() const;
     int getRejectedTransactions() const;
+    std::string getTipHash() const;
+    std::string getConsensusFingerprint() const;
     const block &getBack() const;
     const block &getFront() const;
     int getNodeNum() const;

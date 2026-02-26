@@ -34,6 +34,8 @@ public:
     int getReachableNodeCount(int startNode) const;
     int getMaxReachableNodeCount() const;
     int getIsolatedNodeCount() const;
+    int getLargestConsensusGroupSize() const;
+    double getConsensusRatio() const;
 
     void addEdge(int uNode, int vNode);
 

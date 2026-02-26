@@ -224,6 +224,8 @@ int main(int argc, char **argv)
         std::cout << "  \"rejected_transactions\": " << rejectedTransactions << ",\n";
         std::cout << "  \"verified\": " << (verified ? "true" : "false") << ",\n";
         std::cout << "  \"propagation_enabled\": " << (n1.isPropagationEnabled() ? "true" : "false") << ",\n";
+        std::cout << "  \"largest_consensus_group\": " << n1.getLargestConsensusGroupSize() << ",\n";
+        std::cout << "  \"consensus_ratio\": " << n1.getConsensusRatio() << ",\n";
         std::cout << "  \"node_summaries\": [\n";
         for (int nodeIndex = 0; nodeIndex < numNodesInNetwork; ++nodeIndex) {
             std::cout << "    {\"node\": " << nodeIndex
@@ -238,6 +240,10 @@ int main(int argc, char **argv)
         }
         std::cout << "  ]\n";
         std::cout << "}\n";
+    } else {
+        std::cout << "Accepted transactions: " << acceptedTransactions << std::endl;
+        std::cout << "Rejected transactions: " << rejectedTransactions << std::endl;
+        std::cout << "Consensus ratio: " << n1.getConsensusRatio() << std::endl;
     }
 
     if (opts.verify && !verified) {

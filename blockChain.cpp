@@ -1,4 +1,5 @@
 #include "blockChain.h"
+#include "sha256.h"
 #include <iostream>
 #include <utility>
 
@@ -183,6 +184,44 @@ int blockChain::getTotalTransactions() const {
 
 int blockChain::getRejectedTransactions() const {
     return rejectedTransactions;
+}
+
+std::string blockChain::getTipHash() const {
+    if (bChain.empty()) {
+        return "";
+    }
+    return bChain.front().getHash();
+}
+
+std::string blockChain::getConsensusFingerprint() const {
+    std::string previousBlockFingerprint = "0";
+    for (auto it = bChain.crbegin(); it != bChain.crend(); ++it) {
+        std::string blockData = previousBlockFingerprint;
+        blockData.push_back('|');
+        blockData += std::to_string(it->getBlockNumber());
+
+        const int transactionCount = it->getCurrNumTran();
+        for (int txIndex = 0; txIndex < transactionCount; ++txIndex) {
+            const transaction &tx = it->getTran(static_cast<std::size_t>(txIndex));
+            blockData.push_back('|');
+            blockData += std::to_string(tx.getTranID());
+            blockData.push_back(',');
+            blockData += std::to_string(tx.getFromID());
+            blockData.push_back(',');
+            blockData += std::to_string(tx.getFromValue());
+            blockData.push_back(',');
+            blockData += std::to_string(tx.getToID());
+            blockData.push_back(',');
+            blockData += std::to_string(tx.getToValue());
+            blockData.push_back(',');
+            blockData += std::to_string(tx.getTranAmount());
+            blockData.push_back(',');
+            blockData += tx.getTimeStamp();
+        }
+
+        previousBlockFingerprint = crypto::sha256_hex(blockData);
+    }
+    return previousBlockFingerprint;
 }
 
 const block &blockChain::getBack() const {
