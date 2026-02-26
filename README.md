@@ -48,9 +48,11 @@ The `p4` executable supports a few flags for real-world usage:
 - `p4 --quiet` – suppress per-transaction insert logs
 - `p4 --verify --no-display` – validate chain integrity and exit non-zero on failure
 - `p4 --json input1.txt` – print a JSON summary (suppresses verbose output)
+- `p4 --origin-only input1.txt` – disable network propagation and keep legacy behavior
 - `p4 input1.txt` – read input from a file instead of stdin
 
 Safety behavior (default):
+- Transactions are broadcast from the source node through directed graph edges.
 - Transactions that overspend sender funds are rejected.
 - Duplicate transaction IDs within the same node are rejected.
 - The program validates that parsed transactions match the declared total count.

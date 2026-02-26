@@ -47,3 +47,30 @@ TEST(BlockNetworkTest, ExposesRejectedTransactionCounts) {
     EXPECT_TRUE(net.insertTranToNode(0, t2));
     EXPECT_EQ(net.getNodeRejectedTransactionCount(0), 1);
 }
+
+TEST(BlockNetworkTest, PropagatesTransactionsAcrossEdges) {
+    blockNetwork net(3, 2);
+    net.setLogStream(nullptr);
+    net.addEdge(0, 1);
+    net.addEdge(1, 2);
+
+    transaction t(0, 1, 1, 2, 5, "ts");
+    EXPECT_TRUE(net.insertTranToNode(0, t));
+
+    EXPECT_EQ(net.getNodeTransactionCount(0), 1);
+    EXPECT_EQ(net.getNodeTransactionCount(1), 1);
+    EXPECT_EQ(net.getNodeTransactionCount(2), 1);
+}
+
+TEST(BlockNetworkTest, SupportsOriginOnlyMode) {
+    blockNetwork net(2, 2);
+    net.setLogStream(nullptr);
+    net.setPropagationEnabled(false);
+    net.addEdge(0, 1);
+
+    transaction t(0, 1, 1, 2, 5, "ts");
+    EXPECT_TRUE(net.insertTranToNode(0, t));
+
+    EXPECT_EQ(net.getNodeTransactionCount(0), 1);
+    EXPECT_EQ(net.getNodeTransactionCount(1), 0);
+}

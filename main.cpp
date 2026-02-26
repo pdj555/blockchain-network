@@ -11,6 +11,7 @@ struct Options {
     bool verify = false;
     bool display = true;
     bool json = false;
+    bool originOnly = false;
     std::string inputPath;
 };
 
@@ -22,7 +23,8 @@ void printUsage(const char *argv0) {
               << "  --quiet          Suppress per-transaction insert logs\n"
               << "  --verify         Verify all chains and set exit code\n"
               << "  --no-display     Do not print the full ledger output\n"
-              << "  --json           Print a machine-readable JSON summary\n";
+              << "  --json           Print a machine-readable JSON summary\n"
+              << "  --origin-only    Disable propagation; insert only into source node\n";
 }
 
 enum class ParseResult { ok, help, error };
@@ -51,6 +53,10 @@ ParseResult parseArgs(int argc, char **argv, Options &opts) {
             opts.quiet = true;
             opts.verify = true;
             opts.display = false;
+            continue;
+        }
+        if (arg == "--origin-only") {
+            opts.originOnly = true;
             continue;
         }
         if (!arg.empty() && arg[0] == '-') {
@@ -121,6 +127,9 @@ int main(int argc, char **argv)
     blockNetwork n1(numNodesInNetwork, numTransactionsPerBlock);
     if (opts.quiet) {
         n1.setLogStream(nullptr);
+    }
+    if (opts.originOnly) {
+        n1.setPropagationEnabled(false);
     }
 
     int uNode;
@@ -197,6 +206,7 @@ int main(int argc, char **argv)
         std::cout << "  \"accepted_transactions\": " << acceptedTransactions << ",\n";
         std::cout << "  \"rejected_transactions\": " << rejectedTransactions << ",\n";
         std::cout << "  \"verified\": " << (verified ? "true" : "false") << ",\n";
+        std::cout << "  \"propagation_enabled\": " << (n1.isPropagationEnabled() ? "true" : "false") << ",\n";
         std::cout << "  \"node_summaries\": [\n";
         for (int nodeIndex = 0; nodeIndex < numNodesInNetwork; ++nodeIndex) {
             std::cout << "    {\"node\": " << nodeIndex
