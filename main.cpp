@@ -12,6 +12,7 @@ struct Options {
     bool display = true;
     bool json = false;
     bool originOnly = false;
+    bool strict = false;
     std::string inputPath;
 };
 
@@ -24,7 +25,8 @@ void printUsage(const char *argv0) {
               << "  --verify         Verify all chains and set exit code\n"
               << "  --no-display     Do not print the full ledger output\n"
               << "  --json           Print a machine-readable JSON summary\n"
-              << "  --origin-only    Disable propagation; insert only into source node\n";
+              << "  --origin-only    Disable propagation; insert only into source node\n"
+              << "  --strict         Exit non-zero if any transaction is rejected\n";
 }
 
 enum class ParseResult { ok, help, error };
@@ -57,6 +59,10 @@ ParseResult parseArgs(int argc, char **argv, Options &opts) {
         }
         if (arg == "--origin-only") {
             opts.originOnly = true;
+            continue;
+        }
+        if (arg == "--strict") {
+            opts.strict = true;
             continue;
         }
         if (!arg.empty() && arg[0] == '-') {
@@ -226,6 +232,11 @@ int main(int argc, char **argv)
     if (opts.verify && !verified) {
         std::cerr << "Chain verification failed" << std::endl;
         return 2;
+    }
+
+    if (opts.strict && rejectedTransactions > 0) {
+        std::cerr << "Rejected transactions encountered in strict mode" << std::endl;
+        return 3;
     }
 
     return 0;

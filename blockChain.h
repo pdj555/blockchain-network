@@ -3,6 +3,7 @@
 #include <iosfwd>
 #include <list>
 #include <unordered_map>
+#include <unordered_set>
 #include "block.h"
 
 class blockChain
@@ -13,6 +14,7 @@ class blockChain
     std::ostream *logStream;
     int maxTransactionsPerBlock;
     std::unordered_map<int, int> balances;
+    std::unordered_set<int> transactionIds;
     int rejectedTransactions;
 public:
     blockChain();

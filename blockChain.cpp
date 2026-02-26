@@ -9,6 +9,7 @@ blockChain::blockChain()
       logStream(&std::cout),
       maxTransactionsPerBlock(10),
       balances(),
+      transactionIds(),
       rejectedTransactions(0) {}
 
 blockChain::blockChain(int tPerB)
@@ -18,6 +19,7 @@ blockChain::blockChain(int tPerB)
       logStream(&std::cout),
       maxTransactionsPerBlock(tPerB > 0 ? tPerB : 1),
       balances(),
+      transactionIds(),
       rejectedTransactions(0) {
     bChain.push_front(block(1, maxTransactionsPerBlock));
     currentNumBlocks = 1;
@@ -32,6 +34,7 @@ bool blockChain::insertTran(const transaction &t) {
         bChain.front().setPrevHash("0");
         bChain.front().computeHash();
         balances.clear();
+        transactionIds.clear();
         rejectedTransactions = 0;
     }
 
@@ -47,7 +50,8 @@ bool blockChain::insertTran(const transaction &t) {
     int &fromBalance = balances[fromID];
     int &toBalance = balances[toID];
 
-    if (searchID(annotated.getTranID())) {
+    const int transactionId = annotated.getTranID();
+    if (transactionIds.find(transactionId) != transactionIds.end()) {
         ++rejectedTransactions;
         if (logStream != nullptr) {
             *logStream << "Rejected transaction (duplicate id) in node " << nodeNum << std::endl;
@@ -81,9 +85,11 @@ bool blockChain::insertTran(const transaction &t) {
         bChain.front().computeHash();
     }
 
+    transactionIds.insert(transactionId);
+
     if (logStream != nullptr) {
         *logStream << "Inserting transaction to block #" << currentNumBlocks
-                   << " in node " << t.getTNodeNum() << std::endl;
+                   << " in node " << annotated.getTNodeNum() << std::endl;
     }
     return true;
 }
