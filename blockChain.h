@@ -13,10 +13,11 @@ class blockChain
     std::ostream *logStream;
     int maxTransactionsPerBlock;
     std::unordered_map<int, int> balances;
+    int rejectedTransactions;
 public:
     blockChain();
     blockChain(int tPerB);
-    void insertTran(const transaction &t);
+    bool insertTran(const transaction &t);
     void insertBlockFront(block b);
 
     bool verifyChain() const;
@@ -31,6 +32,7 @@ public:
 
     int getCurrNumBlocks() const;
     int getTotalTransactions() const;
+    int getRejectedTransactions() const;
     const block &getBack() const;
     const block &getFront() const;
     int getNodeNum() const;

@@ -8,7 +8,8 @@ blockChain::blockChain()
       nodeNum(0),
       logStream(&std::cout),
       maxTransactionsPerBlock(10),
-      balances() {}
+      balances(),
+      rejectedTransactions(0) {}
 
 blockChain::blockChain(int tPerB)
     : currentNumBlocks(0),
@@ -16,20 +17,22 @@ blockChain::blockChain(int tPerB)
       nodeNum(0),
       logStream(&std::cout),
       maxTransactionsPerBlock(tPerB > 0 ? tPerB : 1),
-      balances() {
+      balances(),
+      rejectedTransactions(0) {
     bChain.push_front(block(1, maxTransactionsPerBlock));
     currentNumBlocks = 1;
     bChain.front().setPrevHash("0");
     bChain.front().computeHash();
 }
 
-void blockChain::insertTran(const transaction &t) {
+bool blockChain::insertTran(const transaction &t) {
     if (bChain.empty()) {
         bChain.push_front(block(1, maxTransactionsPerBlock));
         currentNumBlocks = 1;
         bChain.front().setPrevHash("0");
         bChain.front().computeHash();
         balances.clear();
+        rejectedTransactions = 0;
     }
 
     transaction annotated = t;
@@ -43,6 +46,22 @@ void blockChain::insertTran(const transaction &t) {
 
     int &fromBalance = balances[fromID];
     int &toBalance = balances[toID];
+
+    if (searchID(annotated.getTranID())) {
+        ++rejectedTransactions;
+        if (logStream != nullptr) {
+            *logStream << "Rejected transaction (duplicate id) in node " << nodeNum << std::endl;
+        }
+        return false;
+    }
+
+    if (amount > fromBalance) {
+        ++rejectedTransactions;
+        if (logStream != nullptr) {
+            *logStream << "Rejected transaction (insufficient funds) in node " << nodeNum << std::endl;
+        }
+        return false;
+    }
 
     annotated.setFromValue(fromBalance);
     annotated.setToValue(toBalance);
@@ -66,6 +85,7 @@ void blockChain::insertTran(const transaction &t) {
         *logStream << "Inserting transaction to block #" << currentNumBlocks
                    << " in node " << t.getTNodeNum() << std::endl;
     }
+    return true;
 }
 
 void blockChain::insertBlockFront(block b) {
@@ -121,6 +141,10 @@ int blockChain::getTotalTransactions() const {
         total += blk.getCurrNumTran();
     }
     return total;
+}
+
+int blockChain::getRejectedTransactions() const {
+    return rejectedTransactions;
 }
 
 const block &blockChain::getBack() const {

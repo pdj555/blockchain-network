@@ -50,6 +50,11 @@ The `p4` executable supports a few flags for real-world usage:
 - `p4 --json input1.txt` – print a JSON summary (suppresses verbose output)
 - `p4 input1.txt` – read input from a file instead of stdin
 
+Safety behavior (default):
+- Transactions that overspend sender funds are rejected.
+- Duplicate transaction IDs within the same node are rejected.
+- The program validates that parsed transactions match the declared total count.
+
 For an optional, higher-level audit report (including OpenAI-backed summaries), see `tools/ai_audit.py`.
 
 ## Architecture Overview

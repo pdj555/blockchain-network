@@ -36,3 +36,14 @@ TEST(BlockNetworkTest, DetectTampering) {
     net.tamperPrevHash(0, 0, "bad");
     EXPECT_TRUE(!net.verifyAllChains());
 }
+
+TEST(BlockNetworkTest, ExposesRejectedTransactionCounts) {
+    blockNetwork net(1, 2);
+    net.setLogStream(nullptr);
+    transaction t1(0, 1, 10, 20, 1000, "ts");
+    transaction t2(0, 1, 20, 30, 5, "ts2");
+
+    EXPECT_TRUE(!net.insertTranToNode(0, t1));
+    EXPECT_TRUE(net.insertTranToNode(0, t2));
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(0), 1);
+}
