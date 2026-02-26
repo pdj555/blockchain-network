@@ -1,17 +1,20 @@
 #include "blockNetwork.h"
 #include <cstddef>
+#include <queue>
 #include <iostream>
 #include <utility>
 
 blockNetwork::blockNetwork()
     : numNodes(0),
       allNodes(),
-      adjList() {}
+      adjList(),
+      propagateTransactions(true) {}
 
 blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock)
     : numNodes(numberOfNodes > 0 ? numberOfNodes : 0),
       allNodes(),
-      adjList(static_cast<std::size_t>(numNodes)) {
+      adjList(static_cast<std::size_t>(numNodes)),
+      propagateTransactions(true) {
     const int maxTransactions = maxTranPerBlock > 0 ? maxTranPerBlock : 1;
     allNodes.reserve(static_cast<std::size_t>(numNodes));
     for (int i = 0; i < numNodes; ++i) {
@@ -25,13 +28,53 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
     if (node < 0 || static_cast<std::size_t>(node) >= allNodes.size()) {
         return false;
     }
-    return allNodes[static_cast<std::size_t>(node)].insertTran(tran);
+
+    if (!propagateTransactions) {
+        return allNodes[static_cast<std::size_t>(node)].insertTran(tran);
+    }
+
+    std::vector<bool> visited(allNodes.size(), false);
+    std::queue<int> toVisit;
+    toVisit.push(node);
+    visited[static_cast<std::size_t>(node)] = true;
+
+    bool allAccepted = true;
+    while (!toVisit.empty()) {
+        const int currentNode = toVisit.front();
+        toVisit.pop();
+
+        const bool accepted = allNodes[static_cast<std::size_t>(currentNode)].insertTran(tran);
+        if (!accepted) {
+            allAccepted = false;
+        }
+
+        const auto &neighbors = adjList[static_cast<std::size_t>(currentNode)];
+        for (int neighbor : neighbors) {
+            if (neighbor < 0 || static_cast<std::size_t>(neighbor) >= visited.size()) {
+                continue;
+            }
+            if (!visited[static_cast<std::size_t>(neighbor)]) {
+                visited[static_cast<std::size_t>(neighbor)] = true;
+                toVisit.push(neighbor);
+            }
+        }
+    }
+
+    return allAccepted;
 }
 
 void blockNetwork::setLogStream(std::ostream *out) {
     for (auto &chain : allNodes) {
         chain.setLogStream(out);
     }
+}
+
+void blockNetwork::setPropagationEnabled(bool enabled) {
+    propagateTransactions = enabled;
+}
+
+bool blockNetwork::isPropagationEnabled() const {
+    return propagateTransactions;
 }
 
 int blockNetwork::getNumNodes() const {

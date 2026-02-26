@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <iosfwd>
+#include <string>
 #include <vector>
 #include "blockChain.h"
 
@@ -9,12 +10,15 @@ class blockNetwork
     int numNodes;
     std::vector<blockChain> allNodes;
     std::vector<std::vector<int>> adjList;
+    bool propagateTransactions;
 public:
     blockNetwork();
     blockNetwork(int numberOfNodes, int maxTranPerBlock);
 
     bool insertTranToNode(int node, const transaction &tran);
     void setLogStream(std::ostream *out);
+    void setPropagationEnabled(bool enabled);
+    bool isPropagationEnabled() const;
 
     int getNumNodes() const;
     int getNodeBlockCount(int node) const;
