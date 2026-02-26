@@ -3,17 +3,22 @@
 #include <queue>
 #include <iostream>
 #include <utility>
+#include <algorithm>
 
 blockNetwork::blockNetwork()
     : numNodes(0),
       allNodes(),
       adjList(),
+      reachableNodesCache(),
+      reachabilityCacheValid(false),
       propagateTransactions(true) {}
 
 blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock)
     : numNodes(numberOfNodes > 0 ? numberOfNodes : 0),
       allNodes(),
       adjList(static_cast<std::size_t>(numNodes)),
+      reachableNodesCache(),
+      reachabilityCacheValid(false),
       propagateTransactions(true) {
     const int maxTransactions = maxTranPerBlock > 0 ? maxTranPerBlock : 1;
     allNodes.reserve(static_cast<std::size_t>(numNodes));
@@ -22,6 +27,37 @@ blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock)
         newChain.setNodeNum(i);
         allNodes.push_back(std::move(newChain));
     }
+}
+
+void blockNetwork::rebuildReachabilityCache() {
+    reachableNodesCache.assign(adjList.size(), std::vector<int>());
+
+    for (std::size_t start = 0; start < adjList.size(); ++start) {
+        std::vector<bool> visited(adjList.size(), false);
+        std::queue<int> toVisit;
+        toVisit.push(static_cast<int>(start));
+        visited[start] = true;
+
+        auto &reachable = reachableNodesCache[start];
+        while (!toVisit.empty()) {
+            const int currentNode = toVisit.front();
+            toVisit.pop();
+            reachable.push_back(currentNode);
+
+            const auto &neighbors = adjList[static_cast<std::size_t>(currentNode)];
+            for (int neighbor : neighbors) {
+                if (neighbor < 0 || static_cast<std::size_t>(neighbor) >= visited.size()) {
+                    continue;
+                }
+                if (!visited[static_cast<std::size_t>(neighbor)]) {
+                    visited[static_cast<std::size_t>(neighbor)] = true;
+                    toVisit.push(neighbor);
+                }
+            }
+        }
+    }
+
+    reachabilityCacheValid = true;
 }
 
 bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
@@ -33,30 +69,16 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
         return allNodes[static_cast<std::size_t>(node)].insertTran(tran);
     }
 
-    std::vector<bool> visited(allNodes.size(), false);
-    std::queue<int> toVisit;
-    toVisit.push(node);
-    visited[static_cast<std::size_t>(node)] = true;
+    if (!reachabilityCacheValid) {
+        rebuildReachabilityCache();
+    }
 
     bool allAccepted = true;
-    while (!toVisit.empty()) {
-        const int currentNode = toVisit.front();
-        toVisit.pop();
-
+    const auto &reachableNodes = reachableNodesCache[static_cast<std::size_t>(node)];
+    for (int currentNode : reachableNodes) {
         const bool accepted = allNodes[static_cast<std::size_t>(currentNode)].insertTran(tran);
         if (!accepted) {
             allAccepted = false;
-        }
-
-        const auto &neighbors = adjList[static_cast<std::size_t>(currentNode)];
-        for (int neighbor : neighbors) {
-            if (neighbor < 0 || static_cast<std::size_t>(neighbor) >= visited.size()) {
-                continue;
-            }
-            if (!visited[static_cast<std::size_t>(neighbor)]) {
-                visited[static_cast<std::size_t>(neighbor)] = true;
-                toVisit.push(neighbor);
-            }
         }
     }
 
@@ -115,36 +137,21 @@ int blockNetwork::getReachableNodeCount(int startNode) const {
         return 0;
     }
 
-    std::vector<bool> visited(adjList.size(), false);
-    std::queue<int> toVisit;
-    toVisit.push(startNode);
-    visited[static_cast<std::size_t>(startNode)] = true;
-
-    int reachableCount = 0;
-    while (!toVisit.empty()) {
-        const int currentNode = toVisit.front();
-        toVisit.pop();
-        ++reachableCount;
-
-        const auto &neighbors = adjList[static_cast<std::size_t>(currentNode)];
-        for (int neighbor : neighbors) {
-            if (neighbor < 0 || static_cast<std::size_t>(neighbor) >= visited.size()) {
-                continue;
-            }
-            if (!visited[static_cast<std::size_t>(neighbor)]) {
-                visited[static_cast<std::size_t>(neighbor)] = true;
-                toVisit.push(neighbor);
-            }
-        }
+    if (!reachabilityCacheValid) {
+        const_cast<blockNetwork *>(this)->rebuildReachabilityCache();
     }
 
-    return reachableCount;
+    return static_cast<int>(reachableNodesCache[static_cast<std::size_t>(startNode)].size());
 }
 
 int blockNetwork::getMaxReachableNodeCount() const {
+    if (!reachabilityCacheValid) {
+        const_cast<blockNetwork *>(this)->rebuildReachabilityCache();
+    }
+
     int maxReachableCount = 0;
-    for (int node = 0; node < numNodes; ++node) {
-        const int reachableCount = getReachableNodeCount(node);
+    for (const auto &reachable : reachableNodesCache) {
+        const int reachableCount = static_cast<int>(reachable.size());
         if (reachableCount > maxReachableCount) {
             maxReachableCount = reachableCount;
         }
@@ -179,7 +186,11 @@ void blockNetwork::addEdge(int uNode, int vNode) {
     const std::size_t numAdjNodes = adjList.size();
     if (uNode >= 0 && static_cast<std::size_t>(uNode) < numAdjNodes && vNode >= 0 &&
         static_cast<std::size_t>(vNode) < numAdjNodes) {
-        adjList[static_cast<std::size_t>(uNode)].push_back(vNode);
+        auto &neighbors = adjList[static_cast<std::size_t>(uNode)];
+        if (std::find(neighbors.begin(), neighbors.end(), vNode) == neighbors.end()) {
+            neighbors.push_back(vNode);
+            reachabilityCacheValid = false;
+        }
     }
 }
 
