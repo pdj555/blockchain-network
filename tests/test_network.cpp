@@ -74,3 +74,14 @@ TEST(BlockNetworkTest, SupportsOriginOnlyMode) {
     EXPECT_EQ(net.getNodeTransactionCount(0), 1);
     EXPECT_EQ(net.getNodeTransactionCount(1), 0);
 }
+
+TEST(BlockNetworkTest, ReportsReachabilityAndIsolationHealth) {
+    blockNetwork net(4, 2);
+    net.addEdge(0, 1);
+    net.addEdge(1, 2);
+
+    EXPECT_EQ(net.getNumEdges(), 2);
+    EXPECT_EQ(net.getReachableNodeCount(0), 3);
+    EXPECT_EQ(net.getMaxReachableNodeCount(), 3);
+    EXPECT_EQ(net.getIsolatedNodeCount(), 1);
+}

@@ -205,8 +205,19 @@ int main(int argc, char **argv)
     }
 
     if (opts.json) {
+        const int edgeCount = n1.getNumEdges();
+        const int isolatedNodeCount = n1.getIsolatedNodeCount();
+        const int maxReachableNodeCount = n1.getMaxReachableNodeCount();
+        const double maxBroadcastCoverage = numNodesInNetwork > 0
+            ? static_cast<double>(maxReachableNodeCount) / static_cast<double>(numNodesInNetwork)
+            : 0.0;
+
         std::cout << "{\n";
         std::cout << "  \"nodes\": " << numNodesInNetwork << ",\n";
+        std::cout << "  \"edges\": " << edgeCount << ",\n";
+        std::cout << "  \"isolated_nodes\": " << isolatedNodeCount << ",\n";
+        std::cout << "  \"max_reachable_nodes\": " << maxReachableNodeCount << ",\n";
+        std::cout << "  \"max_broadcast_coverage\": " << maxBroadcastCoverage << ",\n";
         std::cout << "  \"transactions_per_block\": " << numTransactionsPerBlock << ",\n";
         std::cout << "  \"total_transactions_declared\": " << totalNumTransactions << ",\n";
         std::cout << "  \"accepted_transactions\": " << acceptedTransactions << ",\n";
