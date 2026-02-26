@@ -20,6 +20,7 @@ public:
     blockChain();
     blockChain(int tPerB);
     bool canAcceptTran(const transaction &t) const;
+    void recordRejectedTran(const transaction &t);
     bool insertTran(const transaction &t);
     void insertBlockFront(block b);
 

@@ -88,7 +88,7 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
     const auto &reachableNodes = reachableNodesCache[static_cast<std::size_t>(node)];
     for (int currentNode : reachableNodes) {
         if (!allNodes[static_cast<std::size_t>(currentNode)].canAcceptTran(tran)) {
-            allNodes[static_cast<std::size_t>(currentNode)].insertTran(tran);
+            allNodes[static_cast<std::size_t>(node)].recordRejectedTran(tran);
             return false;
         }
     }
