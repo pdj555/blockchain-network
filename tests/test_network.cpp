@@ -85,3 +85,12 @@ TEST(BlockNetworkTest, ReportsReachabilityAndIsolationHealth) {
     EXPECT_EQ(net.getMaxReachableNodeCount(), 3);
     EXPECT_EQ(net.getIsolatedNodeCount(), 1);
 }
+
+TEST(BlockNetworkTest, DeduplicatesEdgesForStableMetrics) {
+    blockNetwork net(2, 2);
+    net.addEdge(0, 1);
+    net.addEdge(0, 1);
+
+    EXPECT_EQ(net.getNumEdges(), 1);
+    EXPECT_EQ(net.getReachableNodeCount(0), 2);
+}

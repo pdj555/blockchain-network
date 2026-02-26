@@ -10,7 +10,11 @@ class blockNetwork
     int numNodes;
     std::vector<blockChain> allNodes;
     std::vector<std::vector<int>> adjList;
+    std::vector<std::vector<int>> reachableNodesCache;
+    bool reachabilityCacheValid;
     bool propagateTransactions;
+
+    void rebuildReachabilityCache();
 public:
     blockNetwork();
     blockNetwork(int numberOfNodes, int maxTranPerBlock);
