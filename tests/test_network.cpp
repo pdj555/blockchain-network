@@ -94,3 +94,27 @@ TEST(BlockNetworkTest, DeduplicatesEdgesForStableMetrics) {
     EXPECT_EQ(net.getNumEdges(), 1);
     EXPECT_EQ(net.getReachableNodeCount(0), 2);
 }
+
+
+TEST(BlockNetworkTest, RejectsPropagatedTransactionAtomically) {
+    blockNetwork net(3, 2);
+    net.setLogStream(nullptr);
+    net.addEdge(0, 1);
+    net.addEdge(0, 2);
+
+    EXPECT_TRUE(net.insertTranToNode(0, transaction(0, 10, 1, 2, 60, "seed1")));
+    EXPECT_TRUE(net.insertTranToNode(0, transaction(0, 11, 1, 3, 40, "seed2")));
+    EXPECT_EQ(net.getNodeTransactionCount(0), 2);
+    EXPECT_EQ(net.getNodeTransactionCount(1), 2);
+    EXPECT_EQ(net.getNodeTransactionCount(2), 2);
+
+    net.setPropagationEnabled(false);
+    EXPECT_TRUE(net.insertTranToNode(0, transaction(0, 12, 2, 1, 50, "origin-only")));
+    net.setPropagationEnabled(true);
+
+    EXPECT_TRUE(!net.insertTranToNode(0, transaction(0, 13, 1, 2, 30, "should-reject")));
+
+    EXPECT_EQ(net.getNodeTransactionCount(0), 3);
+    EXPECT_EQ(net.getNodeTransactionCount(1), 2);
+    EXPECT_EQ(net.getNodeTransactionCount(2), 2);
+}

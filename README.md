@@ -54,6 +54,7 @@ The `p4` executable supports a few flags for real-world usage:
 
 Safety behavior (default):
 - Transactions are broadcast from the source node through directed graph edges.
+- Broadcasts are atomic across reachable nodes: if any node would reject a transaction, no node appends it.
 - Transactions that overspend sender funds are rejected.
 - Duplicate transaction IDs within the same node are rejected.
 - The program validates that parsed transactions match the declared total count.

@@ -27,6 +27,24 @@ blockChain::blockChain(int tPerB)
     bChain.front().computeHash();
 }
 
+bool blockChain::canAcceptTran(const transaction &t) const {
+    const int transactionId = t.getTranID();
+    if (transactionIds.find(transactionId) != transactionIds.end()) {
+        return false;
+    }
+
+    const int fromID = t.getFromID();
+    const int amount = t.getTranAmount();
+
+    int fromBalance = 100;
+    const auto fromIt = balances.find(fromID);
+    if (fromIt != balances.end()) {
+        fromBalance = fromIt->second;
+    }
+
+    return amount <= fromBalance;
+}
+
 bool blockChain::insertTran(const transaction &t) {
     if (bChain.empty()) {
         bChain.push_front(block(1, maxTransactionsPerBlock));
@@ -40,29 +58,32 @@ bool blockChain::insertTran(const transaction &t) {
 
     transaction annotated = t;
     annotated.setTNodeNum(nodeNum);
-    balances.emplace(annotated.getFromID(), 100);
-    balances.emplace(annotated.getToID(), 100);
 
     const int fromID = annotated.getFromID();
     const int toID = annotated.getToID();
     const int amount = annotated.getTranAmount();
 
-    int &fromBalance = balances[fromID];
-    int &toBalance = balances[toID];
-
-    const int transactionId = annotated.getTranID();
-    if (transactionIds.find(transactionId) != transactionIds.end()) {
-        ++rejectedTransactions;
-        if (logStream != nullptr) {
-            *logStream << "Rejected transaction (duplicate id) in node " << nodeNum << std::endl;
-        }
-        return false;
+    int fromBalance = 100;
+    const auto fromIt = balances.find(fromID);
+    if (fromIt != balances.end()) {
+        fromBalance = fromIt->second;
     }
 
-    if (amount > fromBalance) {
+    int toBalance = 100;
+    const auto toIt = balances.find(toID);
+    if (toIt != balances.end()) {
+        toBalance = toIt->second;
+    }
+
+    if (!canAcceptTran(annotated)) {
         ++rejectedTransactions;
         if (logStream != nullptr) {
-            *logStream << "Rejected transaction (insufficient funds) in node " << nodeNum << std::endl;
+            const bool duplicateId = transactionIds.find(annotated.getTranID()) != transactionIds.end();
+            if (duplicateId) {
+                *logStream << "Rejected transaction (duplicate id) in node " << nodeNum << std::endl;
+            } else {
+                *logStream << "Rejected transaction (insufficient funds) in node " << nodeNum << std::endl;
+            }
         }
         return false;
     }
@@ -70,8 +91,8 @@ bool blockChain::insertTran(const transaction &t) {
     annotated.setFromValue(fromBalance);
     annotated.setToValue(toBalance);
 
-    fromBalance -= amount;
-    toBalance += amount;
+    balances[fromID] = fromBalance - amount;
+    balances[toID] = toBalance + amount;
 
     if (bChain.front().getCurrNumTran() >= maxTransactionsPerBlock) {
         const int newBlockNumber = currentNumBlocks + 1;
@@ -85,7 +106,7 @@ bool blockChain::insertTran(const transaction &t) {
         bChain.front().computeHash();
     }
 
-    transactionIds.insert(transactionId);
+    transactionIds.insert(annotated.getTranID());
 
     if (logStream != nullptr) {
         *logStream << "Inserting transaction to block #" << currentNumBlocks
