@@ -117,6 +117,26 @@ TEST(BlockNetworkTest, RejectsPropagatedTransactionAtomically) {
     EXPECT_EQ(net.getNodeTransactionCount(0), 3);
     EXPECT_EQ(net.getNodeTransactionCount(1), 2);
     EXPECT_EQ(net.getNodeTransactionCount(2), 2);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(0), 1);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(1), 0);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(2), 0);
+}
+
+TEST(BlockNetworkTest, AttributesPropagationRejectionToOriginNode) {
+    blockNetwork net(2, 2);
+    net.setLogStream(nullptr);
+    net.addEdge(0, 1);
+
+    net.setPropagationEnabled(false);
+    EXPECT_TRUE(net.insertTranToNode(1, transaction(1, 1, 1, 2, 70, "seed")));
+    net.setPropagationEnabled(true);
+
+    EXPECT_TRUE(!net.insertTranToNode(0, transaction(0, 2, 1, 3, 50, "reject")));
+
+    EXPECT_EQ(net.getNodeTransactionCount(0), 0);
+    EXPECT_EQ(net.getNodeTransactionCount(1), 1);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(0), 1);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(1), 0);
 }
 
 TEST(BlockNetworkTest, RejectsDuplicateTransactionIdsAcrossNetwork) {
