@@ -102,6 +102,79 @@ int blockNetwork::getNodeRejectedTransactionCount(int node) const {
     return allNodes[static_cast<std::size_t>(node)].getRejectedTransactions();
 }
 
+int blockNetwork::getNumEdges() const {
+    int count = 0;
+    for (const auto &neighbors : adjList) {
+        count += static_cast<int>(neighbors.size());
+    }
+    return count;
+}
+
+int blockNetwork::getReachableNodeCount(int startNode) const {
+    if (startNode < 0 || static_cast<std::size_t>(startNode) >= adjList.size()) {
+        return 0;
+    }
+
+    std::vector<bool> visited(adjList.size(), false);
+    std::queue<int> toVisit;
+    toVisit.push(startNode);
+    visited[static_cast<std::size_t>(startNode)] = true;
+
+    int reachableCount = 0;
+    while (!toVisit.empty()) {
+        const int currentNode = toVisit.front();
+        toVisit.pop();
+        ++reachableCount;
+
+        const auto &neighbors = adjList[static_cast<std::size_t>(currentNode)];
+        for (int neighbor : neighbors) {
+            if (neighbor < 0 || static_cast<std::size_t>(neighbor) >= visited.size()) {
+                continue;
+            }
+            if (!visited[static_cast<std::size_t>(neighbor)]) {
+                visited[static_cast<std::size_t>(neighbor)] = true;
+                toVisit.push(neighbor);
+            }
+        }
+    }
+
+    return reachableCount;
+}
+
+int blockNetwork::getMaxReachableNodeCount() const {
+    int maxReachableCount = 0;
+    for (int node = 0; node < numNodes; ++node) {
+        const int reachableCount = getReachableNodeCount(node);
+        if (reachableCount > maxReachableCount) {
+            maxReachableCount = reachableCount;
+        }
+    }
+    return maxReachableCount;
+}
+
+int blockNetwork::getIsolatedNodeCount() const {
+    if (adjList.empty()) {
+        return 0;
+    }
+
+    std::vector<int> inDegree(adjList.size(), 0);
+    for (const auto &neighbors : adjList) {
+        for (int neighbor : neighbors) {
+            if (neighbor >= 0 && static_cast<std::size_t>(neighbor) < inDegree.size()) {
+                ++inDegree[static_cast<std::size_t>(neighbor)];
+            }
+        }
+    }
+
+    int isolatedCount = 0;
+    for (std::size_t node = 0; node < adjList.size(); ++node) {
+        if (adjList[node].empty() && inDegree[node] == 0) {
+            ++isolatedCount;
+        }
+    }
+    return isolatedCount;
+}
+
 void blockNetwork::addEdge(int uNode, int vNode) {
     const std::size_t numAdjNodes = adjList.size();
     if (uNode >= 0 && static_cast<std::size_t>(uNode) < numAdjNodes && vNode >= 0 &&

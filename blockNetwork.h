@@ -24,6 +24,10 @@ public:
     int getNodeBlockCount(int node) const;
     int getNodeTransactionCount(int node) const;
     int getNodeRejectedTransactionCount(int node) const;
+    int getNumEdges() const;
+    int getReachableNodeCount(int startNode) const;
+    int getMaxReachableNodeCount() const;
+    int getIsolatedNodeCount() const;
 
     void addEdge(int uNode, int vNode);
 
