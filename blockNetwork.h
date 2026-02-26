@@ -13,12 +13,13 @@ public:
     blockNetwork();
     blockNetwork(int numberOfNodes, int maxTranPerBlock);
 
-    void insertTranToNode(int node, const transaction &tran);
+    bool insertTranToNode(int node, const transaction &tran);
     void setLogStream(std::ostream *out);
 
     int getNumNodes() const;
     int getNodeBlockCount(int node) const;
     int getNodeTransactionCount(int node) const;
+    int getNodeRejectedTransactionCount(int node) const;
 
     void addEdge(int uNode, int vNode);
 

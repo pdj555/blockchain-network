@@ -64,3 +64,27 @@ TEST(BlockChainTest, RecordsPreTransactionBalances) {
     EXPECT_EQ(second->getTran(0).getFromValue(), 110);
     EXPECT_EQ(second->getTran(0).getToValue(), 90);
 }
+
+TEST(BlockChainTest, RejectsInsufficientFunds) {
+    blockChain chain(2);
+    chain.setLogStream(nullptr);
+
+    transaction t1(0, 1, 1, 2, 200, "t1");
+
+    EXPECT_TRUE(!chain.insertTran(t1));
+    EXPECT_EQ(chain.getTotalTransactions(), 0);
+    EXPECT_EQ(chain.getRejectedTransactions(), 1);
+}
+
+TEST(BlockChainTest, RejectsDuplicateTransactionIds) {
+    blockChain chain(2);
+    chain.setLogStream(nullptr);
+
+    transaction t1(0, 1, 1, 2, 20, "t1");
+    transaction t2(0, 1, 2, 3, 10, "t2");
+
+    EXPECT_TRUE(chain.insertTran(t1));
+    EXPECT_TRUE(!chain.insertTran(t2));
+    EXPECT_EQ(chain.getTotalTransactions(), 1);
+    EXPECT_EQ(chain.getRejectedTransactions(), 1);
+}

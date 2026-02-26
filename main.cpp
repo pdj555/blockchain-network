@@ -148,6 +148,8 @@ int main(int argc, char **argv)
     int toID;
     int amountTrans;
     std::string timeStamp;
+    int acceptedTransactions = 0;
+    int rejectedTransactions = 0;
 
     while (true) {
         if (!(*in >> node >> transactionID >> fromID >> toID >> amountTrans >> timeStamp)) {
@@ -166,7 +168,16 @@ int main(int argc, char **argv)
             return 1;
         }
         transaction t(node, transactionID, fromID, toID, amountTrans, timeStamp);
-        n1.insertTranToNode(node, t);
+        if (n1.insertTranToNode(node, t)) {
+            ++acceptedTransactions;
+        } else {
+            ++rejectedTransactions;
+        }
+    }
+
+    if (acceptedTransactions + rejectedTransactions != totalNumTransactions) {
+        std::cerr << "Declared transaction count does not match parsed entries" << std::endl;
+        return 1;
     }
 
     if (opts.display) {
@@ -183,12 +194,16 @@ int main(int argc, char **argv)
         std::cout << "  \"nodes\": " << numNodesInNetwork << ",\n";
         std::cout << "  \"transactions_per_block\": " << numTransactionsPerBlock << ",\n";
         std::cout << "  \"total_transactions_declared\": " << totalNumTransactions << ",\n";
+        std::cout << "  \"accepted_transactions\": " << acceptedTransactions << ",\n";
+        std::cout << "  \"rejected_transactions\": " << rejectedTransactions << ",\n";
         std::cout << "  \"verified\": " << (verified ? "true" : "false") << ",\n";
         std::cout << "  \"node_summaries\": [\n";
         for (int nodeIndex = 0; nodeIndex < numNodesInNetwork; ++nodeIndex) {
             std::cout << "    {\"node\": " << nodeIndex
                       << ", \"blocks\": " << n1.getNodeBlockCount(nodeIndex)
-                      << ", \"transactions\": " << n1.getNodeTransactionCount(nodeIndex) << "}";
+                      << ", \"transactions\": " << n1.getNodeTransactionCount(nodeIndex)
+                      << ", \"rejected_transactions\": " << n1.getNodeRejectedTransactionCount(nodeIndex)
+                      << "}";
             if (nodeIndex + 1 < numNodesInNetwork) {
                 std::cout << ",";
             }

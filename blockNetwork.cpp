@@ -21,11 +21,11 @@ blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock)
     }
 }
 
-void blockNetwork::insertTranToNode(int node, const transaction &tran) {
+bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
     if (node < 0 || static_cast<std::size_t>(node) >= allNodes.size()) {
-        return;
+        return false;
     }
-    allNodes[static_cast<std::size_t>(node)].insertTran(tran);
+    return allNodes[static_cast<std::size_t>(node)].insertTran(tran);
 }
 
 void blockNetwork::setLogStream(std::ostream *out) {
@@ -50,6 +50,13 @@ int blockNetwork::getNodeTransactionCount(int node) const {
         return 0;
     }
     return allNodes[static_cast<std::size_t>(node)].getTotalTransactions();
+}
+
+int blockNetwork::getNodeRejectedTransactionCount(int node) const {
+    if (node < 0 || static_cast<std::size_t>(node) >= allNodes.size()) {
+        return 0;
+    }
+    return allNodes[static_cast<std::size_t>(node)].getRejectedTransactions();
 }
 
 void blockNetwork::addEdge(int uNode, int vNode) {
