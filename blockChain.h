@@ -19,6 +19,7 @@ class blockChain
 public:
     blockChain();
     blockChain(int tPerB);
+    bool canAcceptTran(const transaction &t) const;
     bool insertTran(const transaction &t);
     void insertBlockFront(block b);
 

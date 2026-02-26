@@ -73,16 +73,19 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
         rebuildReachabilityCache();
     }
 
-    bool allAccepted = true;
     const auto &reachableNodes = reachableNodesCache[static_cast<std::size_t>(node)];
     for (int currentNode : reachableNodes) {
-        const bool accepted = allNodes[static_cast<std::size_t>(currentNode)].insertTran(tran);
-        if (!accepted) {
-            allAccepted = false;
+        if (!allNodes[static_cast<std::size_t>(currentNode)].canAcceptTran(tran)) {
+            allNodes[static_cast<std::size_t>(currentNode)].insertTran(tran);
+            return false;
         }
     }
 
-    return allAccepted;
+    for (int currentNode : reachableNodes) {
+        allNodes[static_cast<std::size_t>(currentNode)].insertTran(tran);
+    }
+
+    return true;
 }
 
 void blockNetwork::setLogStream(std::ostream *out) {
