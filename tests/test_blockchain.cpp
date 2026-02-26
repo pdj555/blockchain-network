@@ -104,3 +104,17 @@ TEST(BlockChainTest, SearchIdTracksTransactionsAcrossBlocks) {
     EXPECT_TRUE(chain.searchID(11));
     EXPECT_TRUE(!chain.searchID(99));
 }
+
+TEST(BlockChainTest, RejectsInvalidTransactionFields) {
+    blockChain chain(2);
+    chain.setLogStream(nullptr);
+
+    EXPECT_TRUE(!chain.insertTran(transaction(0, -1, 1, 2, 10, "bad-id")));
+    EXPECT_TRUE(!chain.insertTran(transaction(0, 2, -1, 2, 10, "bad-from")));
+    EXPECT_TRUE(!chain.insertTran(transaction(0, 3, 1, -2, 10, "bad-to")));
+    EXPECT_TRUE(!chain.insertTran(transaction(0, 4, 1, 2, 0, "zero")));
+    EXPECT_TRUE(!chain.insertTran(transaction(0, 5, 1, 2, -3, "negative")));
+
+    EXPECT_EQ(chain.getTotalTransactions(), 0);
+    EXPECT_EQ(chain.getRejectedTransactions(), 5);
+}

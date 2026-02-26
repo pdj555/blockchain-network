@@ -11,7 +11,8 @@ blockNetwork::blockNetwork()
       adjList(),
       reachableNodesCache(),
       reachabilityCacheValid(false),
-      propagateTransactions(true) {}
+      propagateTransactions(true),
+      networkTransactionIds() {}
 
 blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock)
     : numNodes(numberOfNodes > 0 ? numberOfNodes : 0),
@@ -19,7 +20,8 @@ blockNetwork::blockNetwork(int numberOfNodes, int maxTranPerBlock)
       adjList(static_cast<std::size_t>(numNodes)),
       reachableNodesCache(),
       reachabilityCacheValid(false),
-      propagateTransactions(true) {
+      propagateTransactions(true),
+      networkTransactionIds() {
     const int maxTransactions = maxTranPerBlock > 0 ? maxTranPerBlock : 1;
     allNodes.reserve(static_cast<std::size_t>(numNodes));
     for (int i = 0; i < numNodes; ++i) {
@@ -65,8 +67,17 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
         return false;
     }
 
+    const int transactionId = tran.getTranID();
+    if (networkTransactionIds.find(transactionId) != networkTransactionIds.end()) {
+        return false;
+    }
+
     if (!propagateTransactions) {
-        return allNodes[static_cast<std::size_t>(node)].insertTran(tran);
+        const bool inserted = allNodes[static_cast<std::size_t>(node)].insertTran(tran);
+        if (inserted) {
+            networkTransactionIds.insert(transactionId);
+        }
+        return inserted;
     }
 
     if (!reachabilityCacheValid) {
@@ -85,6 +96,7 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
         allNodes[static_cast<std::size_t>(currentNode)].insertTran(tran);
     }
 
+    networkTransactionIds.insert(transactionId);
     return true;
 }
 

@@ -3,6 +3,7 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include "blockChain.h"
 
 class blockNetwork
@@ -13,6 +14,7 @@ class blockNetwork
     std::vector<std::vector<int>> reachableNodesCache;
     bool reachabilityCacheValid;
     bool propagateTransactions;
+    std::unordered_set<int> networkTransactionIds;
 
     void rebuildReachabilityCache();
 public:

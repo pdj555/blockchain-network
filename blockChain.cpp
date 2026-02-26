@@ -33,8 +33,15 @@ bool blockChain::canAcceptTran(const transaction &t) const {
         return false;
     }
 
+    if (transactionId < 0 || t.getFromID() < 0 || t.getToID() < 0) {
+        return false;
+    }
+
     const int fromID = t.getFromID();
     const int amount = t.getTranAmount();
+    if (amount <= 0) {
+        return false;
+    }
 
     int fromBalance = 100;
     const auto fromIt = balances.find(fromID);
@@ -79,8 +86,12 @@ bool blockChain::insertTran(const transaction &t) {
         ++rejectedTransactions;
         if (logStream != nullptr) {
             const bool duplicateId = transactionIds.find(annotated.getTranID()) != transactionIds.end();
+            const bool invalidFields = annotated.getTranID() < 0 || annotated.getFromID() < 0 ||
+                                      annotated.getToID() < 0 || annotated.getTranAmount() <= 0;
             if (duplicateId) {
                 *logStream << "Rejected transaction (duplicate id) in node " << nodeNum << std::endl;
+            } else if (invalidFields) {
+                *logStream << "Rejected transaction (invalid fields) in node " << nodeNum << std::endl;
             } else {
                 *logStream << "Rejected transaction (insufficient funds) in node " << nodeNum << std::endl;
             }

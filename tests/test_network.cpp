@@ -118,3 +118,15 @@ TEST(BlockNetworkTest, RejectsPropagatedTransactionAtomically) {
     EXPECT_EQ(net.getNodeTransactionCount(1), 2);
     EXPECT_EQ(net.getNodeTransactionCount(2), 2);
 }
+
+TEST(BlockNetworkTest, RejectsDuplicateTransactionIdsAcrossNetwork) {
+    blockNetwork net(3, 2);
+    net.setLogStream(nullptr);
+
+    EXPECT_TRUE(net.insertTranToNode(0, transaction(0, 99, 1, 2, 10, "t1")));
+    EXPECT_TRUE(!net.insertTranToNode(2, transaction(2, 99, 3, 4, 10, "t2")));
+
+    EXPECT_EQ(net.getNodeTransactionCount(0), 1);
+    EXPECT_EQ(net.getNodeTransactionCount(1), 0);
+    EXPECT_EQ(net.getNodeTransactionCount(2), 0);
+}
