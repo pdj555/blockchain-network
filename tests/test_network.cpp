@@ -154,6 +154,19 @@ TEST(BlockNetworkTest, RejectsDuplicateTransactionIdsAcrossNetwork) {
     EXPECT_EQ(net.getNodeRejectedTransactionCount(2), 1);
 }
 
+
+TEST(BlockNetworkTest, LogsDuplicateReasonForNetworkLevelDuplicateIds) {
+    blockNetwork net(2, 2);
+    std::ostringstream oss;
+    net.setLogStream(&oss);
+
+    EXPECT_TRUE(net.insertTranToNode(0, transaction(0, 77, 1, 2, 10, "first")));
+    EXPECT_TRUE(!net.insertTranToNode(1, transaction(1, 77, 3, 4, 10, "dup")));
+
+    const std::string logs = oss.str();
+    EXPECT_NE(logs.find("Rejected transaction (duplicate id) in node 1"), std::string::npos);
+}
+
 TEST(BlockNetworkTest, ReportsFullConsensusWithPropagation) {
     blockNetwork net(3, 2);
     net.setLogStream(nullptr);

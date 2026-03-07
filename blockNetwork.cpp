@@ -70,7 +70,7 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
 
     const int transactionId = tran.getTranID();
     if (networkTransactionIds.find(transactionId) != networkTransactionIds.end()) {
-        allNodes[static_cast<std::size_t>(node)].recordRejectedTran(tran);
+        allNodes[static_cast<std::size_t>(node)].recordRejectedTran(blockChain::RejectionReason::duplicateId);
         return false;
     }
 
@@ -89,7 +89,7 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
     const auto &reachableNodes = reachableNodesCache[static_cast<std::size_t>(node)];
     for (int currentNode : reachableNodes) {
         if (!allNodes[static_cast<std::size_t>(currentNode)].canAcceptTran(tran)) {
-            allNodes[static_cast<std::size_t>(node)].recordRejectedTran(tran);
+            allNodes[static_cast<std::size_t>(node)].recordRejectedTran(blockChain::RejectionReason::duplicateId);
             return false;
         }
     }
