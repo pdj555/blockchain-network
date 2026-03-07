@@ -8,6 +8,10 @@
 
 class blockChain
 {
+public:
+    enum class RejectionReason { duplicateId, invalidFields, insufficientFunds };
+
+private:
     int currentNumBlocks;
     std::list<block> bChain;
     int nodeNum;
@@ -21,6 +25,7 @@ public:
     blockChain(int tPerB);
     bool canAcceptTran(const transaction &t) const;
     void recordRejectedTran(const transaction &t);
+    void recordRejectedTran(RejectionReason reason);
     bool insertTran(const transaction &t);
     void insertBlockFront(block b);
 

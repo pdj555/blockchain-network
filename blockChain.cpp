@@ -54,21 +54,33 @@ bool blockChain::canAcceptTran(const transaction &t) const {
 }
 
 
-void blockChain::recordRejectedTran(const transaction &t) {
+void blockChain::recordRejectedTran(RejectionReason reason) {
     ++rejectedTransactions;
     if (logStream == nullptr) {
         return;
     }
 
+    const char *reasonText = "insufficient funds";
+    if (reason == RejectionReason::duplicateId) {
+        reasonText = "duplicate id";
+    } else if (reason == RejectionReason::invalidFields) {
+        reasonText = "invalid fields";
+    }
+
+    *logStream << "Rejected transaction (" << reasonText << ") in node " << nodeNum << std::endl;
+}
+
+void blockChain::recordRejectedTran(const transaction &t) {
     const bool duplicateId = transactionIds.find(t.getTranID()) != transactionIds.end();
     const bool invalidFields = t.getTranID() < 0 || t.getFromID() < 0 ||
                                t.getToID() < 0 || t.getTranAmount() <= 0;
+
     if (duplicateId) {
-        *logStream << "Rejected transaction (duplicate id) in node " << nodeNum << std::endl;
+        recordRejectedTran(RejectionReason::duplicateId);
     } else if (invalidFields) {
-        *logStream << "Rejected transaction (invalid fields) in node " << nodeNum << std::endl;
+        recordRejectedTran(RejectionReason::invalidFields);
     } else {
-        *logStream << "Rejected transaction (insufficient funds) in node " << nodeNum << std::endl;
+        recordRejectedTran(RejectionReason::insufficientFunds);
     }
 }
 
