@@ -70,6 +70,7 @@ bool blockNetwork::insertTranToNode(int node, const transaction &tran) {
 
     const int transactionId = tran.getTranID();
     if (networkTransactionIds.find(transactionId) != networkTransactionIds.end()) {
+        allNodes[static_cast<std::size_t>(node)].recordRejectedTran(tran);
         return false;
     }
 

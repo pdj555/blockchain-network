@@ -149,6 +149,9 @@ TEST(BlockNetworkTest, RejectsDuplicateTransactionIdsAcrossNetwork) {
     EXPECT_EQ(net.getNodeTransactionCount(0), 1);
     EXPECT_EQ(net.getNodeTransactionCount(1), 0);
     EXPECT_EQ(net.getNodeTransactionCount(2), 0);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(0), 0);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(1), 0);
+    EXPECT_EQ(net.getNodeRejectedTransactionCount(2), 1);
 }
 
 TEST(BlockNetworkTest, ReportsFullConsensusWithPropagation) {
